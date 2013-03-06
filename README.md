@@ -2,9 +2,7 @@
 ===
 
 ---
-   外文翻译终于好了，妈蛋！   
-   文献综述ing   
-   
+   好像要来不及了。。。。。。
    
 ---
 原项目地址：[传送门](https://github.com/unlucky/zjutthesis)   

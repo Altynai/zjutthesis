@@ -31,9 +31,6 @@
 \chapter*{基于内存数据库的大数据应用系统的设计与实现}
 \titleformat{\chapter}[block]{\xiaosi\heiti}{\CJKnumber{\thechapter}、}{1ex}{}{} % 恢复标题居左，黑体四号
 
-%%%%%%%%%% 摘要 %%%%%%%%%%
-%\include{preface/proposal_abstract}     % 中文摘要
-
 %%%%%%%%%% 正文 %%%%%%%%%%
 \mainmatter
 \chapter{选题的背景与意义}
@@ -88,10 +85,10 @@ Resident Database，DRDB）由于经过几十年的发展其功能完备，稳�
 
 5. MMDB的并发控制，在短小事务时，往往采用大力度的锁，MMDB近似于串行处理，串行化执行事务一方面使得并发控制的代价几乎完全消除，同时也能减少CPU的cache缓存和虚拟内存页表TLB的刷新频率；而对于长事务和多处理机环境串行处理明显不合适，这样就必需应用而合适的锁机制来支持并发操作，目前提出了二级层次封锁协议方案、乐观并发控制方法、使用可扩展的哈希技术的方法等。
 
-\subsecion{国外研究发展现状}
+\subsection{国外研究发展现状}
 现代应用推动了MMDB的发展，并经过长年的研究，出现了多种MMDB的
 模型及商用或开源的产品。商用MDB的代表产品有AltiBase、Timesten等，开源
-产品主要有FastDB、SQLite等。
+产品主要有FastDB、SQLite、Redis等。
 
 Timesten在内存中实现数据的管理，并优化了相应的访问算法及数据结构，
 能够最大效率的执行数据库操作，进而大幅度提高数据库的响应速度及系统吞吐
@@ -114,9 +111,11 @@ Altisase数据库是可同时支持MMDB和DRDB磁的混合型数据库管理系�
 
 FastDb是高效的内存数据库系统，具备实时能力及便利的C++接口。FastDB不支持client-server架构因而所有使用FastDB的应 用程序必须运行在同一主机上。FastDB针对应用程序通过控制读访问模式作了优化。通过降低数据传输的开销和非常有效的锁机制提供了高速的查询。对每一 个使用数据库的应用数据库文件被影射到虚拟内存空间中。因此查询在应用的上下文中执行而不需要切换上下文以及数据传输。fastdb中并发访问数据库的同 步机制通过原子指令实现，几乎不增加查询的开销。fastdb假定整个数据库存在于RAM中，并且依据这个假定优化了查询算法和接口。此外，fastdb 没有数据库缓冲管理开销，不需要在数据库文件和缓冲池之间传输数据。这就是fastdb运行速度明显快于把数据放在缓冲池中的传统数据库的原因。Fastdb支持事务、在线备份以及系统崩溃后的自动恢复。事务提交协议依据一个影子根页面算法来自动更新数据库。恢复可以执行得非常快，为临界应用提 供了高可用性。此外，取消事务日志改进了整个系统的性能，并且使得可以更有效的利用系统资源。
 
-SQLite，是一款轻型的数据库，是遵守ACID的关联式数据库管理系统，它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如 Tcl、C#、PHP、Java等，还有ODBC接口，同样比起Mysql、PostgreSQL这两款开源世界著名的数据库管理系统来讲，它的处理速度比他们都快。SQLite第一个Alpha版本诞生于2000年5月。 至今已经有12个年头，SQLite也迎来了一个版本 SQLite 3已经发布。
+SQLite，是一款轻型的数据库，是遵守ACID的关联式数据库管理系统，它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如 Tcl、C\#、PHP、Java等，还有ODBC接口，同样比起Mysql、PostgreSQL这两款开源世界著名的数据库管理系统来讲，它的处理速度比他们都快。SQLite第一个Alpha版本诞生于2000年5月。 至今已经有12个年头，SQLite也迎来了一个版本 SQLite 3已经发布。
 
-\subsecion{国内研究发展现状}
+redis是一个高性能的key-value存储系统。和Memcached类似，它支持存储的value类型相对更多，包括string（字符串）、list（链表）、set（集合）和zset（有序集合）。这些数据类型都支持push/pop、add/remove及取交集并集和差集及更丰富的操作，而且这些操作都是原子性的。在此基础上，redis支持各种不同方式的排序。与memcached一样，为了保证效率，数据都是缓存在内存中。区别的是redis会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件，并且在此基础上实现了master-slave（主从）同步。
+
+\subsection{国内研究发展现状}
 国内对内存数据库技术的研究偏向于在实际应用环境中的应用，但是也有一
 些实验系统，比如GKD-MMDB和ARST-EDB等等。
 
@@ -134,19 +133,78 @@ ARTS-EDB是华中理工大学研究开发的支持C/S模式的嵌入式主动实
 
 \chapter{研究开发的目标、基本内容，技术关键}
 \section{研究目标}
-在对比国内外MMDB的基本上，在研究国外一些MMDB设计和实现上，提出自己的设计与实现，并应用于实际的大数据中。
-本课题的研究目标定位于利用一些常见的MMDB基本架构，实现一个简单的大数据应用系统，特别是应用相关的数据结构、索引等技术。
+了解Redis的工作原理，并应用于实际的大数据中。
+本课题的研究目标定位于利用Redis基本架构，实现一个简单的大数据应用系统。
 
 \section{基本内容}
 总体架构的设计；支持SQL语言的存储引擎设计；设计开发图形化的性能测试工具。
 
 \section{技术关键}
-内存数据的组织结构、索引技术、并发控制、恢复机制。
-
-支持SQL语言的存储引擎设计、图形化工具的开发。
+建立易于检索的数据结构、支持SQL语言的存储引擎设计、图形化工具的开发。
 
 \chapter{研究开发的方法、技术路线和步骤}
 
+\begin{enumerate}[label=（\arabic*）]
+\item{系统开发环境：Microsoft Windows 7 + Sublime Text 2}
+\item{系统构架：Redis + MySQL读写架构。\\
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.4\textwidth]{redis1}
+\caption{写架构}\label{fig:redis1}
+\vspace{\baselineskip}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.4\textwidth]{redis2}
+\caption{读架构}\label{fig:redis2}
+\vspace{\baselineskip}
+\end{figure}
+
+}
+\item{编程语言：Python\\
+
+Python是一种面向对象、直译式计算机程序设计语言，由Guido van Rossum于1989年底发明，第一个公开发行版发行于1991年。Python语法简捷而清晰，具有丰富和强大的类库。它常被昵称为胶水语言，它能够很轻松的把用其他语言制作的各种模块（尤其是C/C++）轻松地联结在一起。
+
+\begin{enumerate}[label=\Alph*.]
+\item{简单：Python是一种代表简单主义思想的语言。阅读一个良好的Python程序就感觉像是在读英语一样。它使你能够专注于解决问题而不是去搞明白语言本身。}
+\item{易学：Python极其容易上手，因为Python有极其简单的文档。}
+\item{免费、开源：Python是FLOSS（自由/开放源码软件）之一。使用者可以自由地发布这个软件的拷贝、阅读它的源代码、对它做改动、把它的一部分用于新的自由软件中。FLOSS是基于一个团体分享知识的概念。}
+\item{高层语言：用Python语言编写程序的时候无需考虑诸如如何管理你的程序使用的内存一类的底层细节。}
+\item{可移植性：由于它的开源本质，Python已经被移植在许多平台上（经过改动使它能够工作在不同平台上）。这些平台包括Linux、Windows、FreeBSD、Macintosh、Solaris、OS/2、Amiga、AROS、AS/400、BeOS、OS/390、z/OS、Palm OS、QNX、VMS、Psion、Acom RISC OS、VxWorks、PlayStation、Sharp Zaurus、Windows CE、PocketPC、Symbian以及Google基于linux开发的android平台。}
+\item{解释性：一个用编译性语言比如C或C++写的程序可以从源文件（即C或C++语言）转换到一个你的计算机使用的语言（二进制代码，即0和1）。这个过程通过编译器和不同的标记、选项完成。
+运行程序的时候，连接/转载器软件把你的程序从硬盘复制到内存中并且运行。而Python语言写的程序不需要编译成二进制代码。你可以直接从源代码运行 程序。在计算机内部，Python解释器把源代码转换成称为字节码的中间形式，然后再把它翻译成计算机使用的机器语言并运行。这使得使用Python更加简单。也使得Python程序更加易于移植。}
+\item{面向对象：Python既支持面向过程的编程也支持面向对象的编程。在“面向过程”的语言中，程序是由过程或仅仅是可重用代码的函数构建起来的。在“面向对象”的语言中，程序是由数据和功能组合而成的对象构建起来的。}
+\item{可扩展性：如果需要一段关键代码运行得更快或者希望某些算法不公开，可以部分程序用C或C++编写，然后在Python程序中使用它们。}
+\item{可嵌入性：可以把Python嵌入C/C++程序，从而向程序用户提供脚本功能。}
+\item{丰富的库：Python标准库确实很庞大。它可以帮助处理各种工作，包括正则表达式、文档生成、单元测试、线程、数据库、网页浏览器、CGI、FTP、电子邮件、XML、XML-RPC、HTML、WAV文件、密码系统、GUI（图形用户界面）、Tk和其他与系统有关的操作。这被称作Python的“功能齐全”理念。除了标准库以外，还有许多其他高质量的库，如wxPython、Twisted和Python图像库等等。}
+\item{规范的代码：Python采用强制缩进的方式使得代码具有较好可读性。而Python语言写的程序不需要编译成二进制代码。}
+\end{enumerate}}
+
+\item{数据库软件：MySQL}
+\end{enumerate}
+
+\chapter{研究工作总体安排与时间进度}
+\begin{table}[htbp]
+\caption{工作总体安排与时间进度}\label{tab:table1}
+\vspace{0.5em}
+\begin{center}
+{\wuhao
+\begin{tabular}{|c|c|c|}
+\hline
+任务序号 & 起止时间 & 阶段任务要点\\ \hline
+1 & 2013.1.11~-~2013.2.20 & 了解课题相关内容，查找中、英文资料\\ \hline
+2 & 2013.2.21~-~2013.3.8 & 查阅文献资料，完成文献综述、开题报告和外文翻译\\ \hline
+3 & 2013.3.9~-~2013.3.25 & 阅读Redis源代码，分析其架构\\ \hline
+4 & 2013.3.26~-~2013.4.1 & 系统详细设计\\ \hline
+5 & 2013.4.2~-~2013.4.24 & 编码\\ \hline
+6 & 2013.4.25~-~2013.4.30 & 系统测试\\ \hline
+7 & 2013.5.1~-~2013.5.15 & 整理资料，完成论文\\ \hline
+\end{tabular}}
+\end{center}
+\vspace{\baselineskip}
+\end{table}
 
 \backmatter
 \endgroup % 组结束

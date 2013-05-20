@@ -288,7 +288,7 @@ Redis缓存使用的方式与memcached相同。
 系统的架构设计如图~\ref{fig:System}~所示。
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{System}
+\includegraphics[width=\textwidth]{System}
 \caption{系统的架构图}\label{fig:System}
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
@@ -310,17 +310,54 @@ Redis缓存使用的方式与memcached相同。
 
 \subsection{系统目录规划}
 %%% TODO 系统目录规划表 %%%
+系统的目录规划表主要分两个部分：Redis部分和GUI界面部分，如表~\ref{tab:redis-files}~和表~\ref{tab:GUI-files}~所示。
 
+\begin{table}[H]
+\centering
+\caption{系统目录规划表（Redis部分）}\label{tab:redis-files}
+\vspace{0.5em}{\centering\wuhao
+\begin{tabular}{|c|c|}
+\toprule[1.5pt]
+目录 & 名称及说明\\
+\midrule[1pt]
+表中数据(1,1) & 表中数据(1,2)\\
+\bottomrule[1.5pt]
+\end{tabular}}
+\vspace{\baselineskip}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{系统目录规划表（GUI部分）}\label{tab:GUI-files}
+\vspace{0.5em}{\centering\wuhao
+\begin{tabular}{|c|c|}
+\toprule[1.5pt]
+目录 & 名称及说明\\
+\midrule[1pt]
+表中数据(1,1) & 表中数据(1,2)\\
+\bottomrule[1.5pt]
+\end{tabular}}
+\vspace{\baselineskip}
+\end{table}
+
+%%% TODO 选择器 %%%
 \section{系统功能模块详细设计}
+在上文中，图~\ref{fig:Command}~说明了主要的功能模块，包括SQL模块和Redis元命令模块，这两个模块的主要功能就是执
+行相关的命令，并返回相应的结果，但是两者的命令都是从同一数据源（GUI）获得的，必须通过“选择器”来确定一条命令是属于SQL模块还是Redis模块，具体设计流程如图~\ref{fig:Selector}~所示。
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Selector}
+\caption{选择处理模块的流程设计}\label{fig:Selector}
+\vspace{\baselineskip} %表示图与正文空一行
+\end{figure}
 
 \section{性能优化设计}
 \begin{enumerate}[label=（\arabic*）]
-\item{根据系统不同需求，修改redis.config}
+\item{根据系统不同需求，修改redis.config中的参数}
 \end{enumerate}
 
 \section{本章小结}
 本章在第三章、第四章的基础上对系统进行了详细设计。首先，在系统开发之前，对系统的开发规范，包括目录规划进行了规定。重点介绍系统功能模块的详细设计及其流程，紧接着对性能优化等方面进行了设计。
-
 
 %%% 第六章 项目中期检查系统实现	%%%
 \chapter{系统实现}

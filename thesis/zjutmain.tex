@@ -209,12 +209,18 @@ Redis缓存使用的方式与memcached相同。
 综上所述，内存数据库应用系统可以同时通过Redis的命令来直接操作“Key-Value”的数据集，或者通过附加的“sql”命令来操作传统的关系型数据库中的表集合，两者都放在内存中。
 
 \section{系统框架}
-整个系统的框架主要分两部分：Server（服务器端）和Client（客户端），如图~\ref{fig:Server-Client}~所示。
+整个系统的框架主要分两部分：Server（服务器端）和Client（客户端），两者通过套接字来进行交互，数据的格式必须满足Redis的协议：
+\begin{verbatim}
+*<参数数量>\r\n$<第1个参数字节数>\r\n<参数数据>\r\n...$<第N个参数字节数>\r\n<参数数据>\r\n
+例如：*3\r\n$3\r\nSET\r\n$5\r\nmykey\r\n$7\r\nmyvalue\r\n
+\end{verbatim}
+
 %%% 架构图 %%%
+整个系统的框架图如图~\ref{fig:Network}~所示。
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{Server-Client}
-\caption{Server和Client架构图}\label{fig:Server-Client}
+\includegraphics[width=0.8\textwidth]{Network}
+\caption{系统框架图}\label{fig:Network}
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
 
@@ -245,19 +251,47 @@ Redis缓存使用的方式与memcached相同。
 % 4.5	本章小结	15
 \section{系统业务流程}
 \subsection{业务流程}
-本系统的业务流程（%%% TODO 业务流程图
-）：客户端向服务器发送命令，服务器接受命令然后将命令传给命令执行器，执行完成之后，将结果保存在缓存，最后回传给客户端。
+从客户端发送命令请求， 到命令被服务器处理、并将结果返回客户端， 整个过程有以下步骤：
+\begin{enumerate}[label=（\arabic*）]
+\item{客户端通过套接字向服务器传送命令协议数据。}
+\item{服务器通过读事件来处理传入数据，并将数据保存在客户端对应redisClient结构的查询缓存中。}
+\item{根据客户端查询缓存中的内容，程序从命令表中查找相应命令的实现函数。}
+\item{程序执行命令的实现函数，并将命令的执行结果保存到客户端redisClient结构的回复缓存中，然后为该客户端关联写事件。}
+\item{当客户端写事件就绪时，将回复缓存中的命令结果传回给客户端。}
+\end{enumerate}
 
-服务器启动之后，它便在6379端口监听来自客户端的请求，此时客户端可以连接到某个服务器，然后发送指令请求。如果客户端连接对应的服务器未启动，那客户端发送的命令的请求都会返回错误。
+整个流程图如图~\ref{fig:Flow-Chart}~所示。
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{Flow-Chart}
+\caption{Client请求处理图}\label{fig:Flow-Chart}
+\vspace{\baselineskip} %表示图与正文空一行
+\end{figure}
+
+%%% TODO 业务流程图
+
+服务器启动之后，它便在6379端口（默认端口）监听来自客户端的请求，此时客户端可以连接到某个服务器，然后发送指令请求。如果客户端连接对应的服务器未启动，那客户端发送的命令的请求都会返回错误。
 
 \section{系统功能结构}
-本系统功能主要分两部分：Redis元命令部分，SQL部分。系统的功能结构如
 %%% TODO 系统功能图 %%%
-所示。
+本系统功能主要分两部分：Redis元命令部分，SQL部分，系统的功能结构如图~\ref{fig:Command}~所示。
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Command}
+\caption{系统功能结构图}\label{fig:Command}
+\vspace{\baselineskip} %表示图与正文空一行
+\end{figure}
 
 \section{系统架构设计}
-系统的架构设计如%%% TODO %%%
-所示。
+%%% TODO 系统的架构图%%%
+
+系统的架构设计如图~\ref{fig:System}~所示。
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{System}
+\caption{系统的架构图}\label{fig:System}
+\vspace{\baselineskip} %表示图与正文空一行
+\end{figure}
 
 \section{本章小结}
 本章主要对内存数据库系统进行了概要设计。首先，对本系统进行了详细的阐述并进行系统架构设计。然后，确定了系统的总体功能结构，概要描述了各个功能模块的详细要求。

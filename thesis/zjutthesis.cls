@@ -97,7 +97,7 @@
 \RequirePackage{xcolor} %代码高亮
 
 %% 代码高亮设置
-\lstset{numbers=left, %设置行号位置
+\lstset{numbers=none, %设置行号位置
         numberstyle=\tiny, %设置行号大小
         keywordstyle=\color{blue}, %设置关键字颜色
         commentstyle=\color[cmyk]{1,0,1,0}, %设置注释颜色

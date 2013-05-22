@@ -259,7 +259,7 @@ typedef struct zskiplist {
 相比于传统的跳跃表的节点，redis增加了一个前驱节点的指针，这样的好处使得对跳跃表进行反向遍历。
 对于跳跃表节点，包含了对象的指针（obj）和score，以及跳跃层，每一个跳跃层包括了跳跃到的下一个节点以及这次跳跃所跨越的节点数。对于跳跃表本身，和双端列表一样，维护头尾指针，节点数量，还有每个节点的跳跃层的数量。
 
-传统的跳跃表有个特点：不能包含相同的score，为了满足自身的功能，跳跃表可以允许重复相同的score值。那么这样一来，在进行节点的对比操作的时候，如果score值相同，单靠score值无法判断一个元素的身份，需要连obj都一并检查才行。
+传统的跳跃表有个特点：不能包含相同的score。为了满足自身的功能，跳跃表可以允许重复相同的score值。那么这样一来，在进行节点的对比操作的时候，如果score值相同，单靠score值无法判断一个元素的身份，需要连obj都一并检查才行。
 
 和字典、链表或者sds这种大量使用的数据结构不同，跳跃表在Redis的唯一作用，就是实现有序集数据类型。
 跳跃表将指向有序集的score值和obj指针作为元素，并以score值为索引，对有序集元素进行排序。这个功能的实用场景很多，例如上文提及过的排行榜排序功能。
@@ -313,9 +313,9 @@ bit     0   15    31   47     63        95       127
 
 但是，这样设计的储存方式也有不足：如果每次向链表增加元素，那么都需要重新分配内存的工作。压缩列表节点的基本结构如下文所示：
 \begin{verbatim}
-|------------------|----------|--------|---------|
-| pre_entry_length | encoding | length | content |
-|------------------|----------|--------|---------|
+|----------------|--------|------|-------|
+|pre_entry_length|encoding|length|content|
+|----------------|--------|------|-------|
 \end{verbatim}
 其中各个节点域表示的含义如下表~\ref{tab:zlentry}~所示：
 
@@ -328,7 +328,7 @@ bit     0   15    31   47     63        95       127
 pre\_entry\_length & 前一个节点的长度（可以用来访问前一个节点）。如果前一节点的长度小于254字节，那么只使用一个字节保存。反之，那么将第1个字节的值设为254，然后用接下来的4个字节保存实际长度。\\ \hline
 encoding & 占两个bit，00、01和10说明content表示的是字符数组，
 11说明content表示的是整数数组。\\ \hline
-length & length所占的bit和encoding有关。00：encoding和length共占1个byte，即lenth占6个bit；01：encoding和length共占2个byte，即lenth占14个bit；10：encoding和length共占5个byte，其中第1个byte剩余6个bit不记，即lenth占32个bit\\
+length & length所占的bit和encoding有关。00：encoding和length共占1个byte，即lenth占6个bit；01：encoding和length共占2个byte，即lenth占14个bit；10：encoding和length共占5个byte，其中第1个byte剩余6个bit不记，即lenth占32个bit\\ \hline
 content & 保存着节点的内容，它的类型和长度由encoding和length决定。\\\bottomrule[1.5pt]
 \end{tabularx}}
 \vspace{\baselineskip}
@@ -349,8 +349,146 @@ content & 保存着节点的内容，它的类型和长度由encoding和length�
 %%% 第四章  数据的持久化 %%% 
 \chapter{数据的持久化}
 什么是持久化，简单来讲就是将数据放到断电后数据不会丢失的设备中，也就是我们通常理解的硬盘上。
-在运行情况下，Redis以数据结构的形式将数据维持在内存中，为了让这些数据在Redis重启之后仍然可用，Redis分别提供了RDB和AOF两种持久化模式。
-redis是一个支持持久化的内存数据库，也就是说redis需要经常将内存中的数据同步到磁盘来保证持久化。redis支持两种持久化方式，一种是Snapshotting（快照）也是默认方式，另一种是Append-onlyfile（缩写aof）的方式。下面分别介绍
+在运行情况下，Redis以数据结构的形式将数据维持在内存中，为了让这些数据在Redis重启之后仍然可用，需要经常将内存中的数据同步到磁盘来保证持久化。这里有两种持久化模式，RDB（保存数据库快照）和AOF（记录写命令）。
+
+\section{RDB}
+RDB是默认的持久化方式，将内存中数据以快照的方式写入到二进制文件中，默认的文件名为dump.rdb。在Server运行时，RDB程序将当前内存中的数据库快照保存到磁盘文件中，在Redis重启动时，RDB程序可以通过载入RDB文件来还原数据库的状态。RDB最核心的是rdbSave和rdbLoad两个函数，前者用于生成RDB文件到磁盘，而后者则用于将RDB文件中的数据重新载入到内存中，如下图~\ref{fig:RDB}~所示：
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{RDB}
+\caption{RDB核心函数}\label{fig:RDB}
+\vspace{\baselineskip} %表示图与正文空一行
+\end{figure}
+
+\subsection{保存}
+rdbSave负责将内存中的数据库数据以.rdb的格式保存到磁盘中。在保存RDB文件期间，
+主进程会被阻塞，直到保存完成为止。SAVE和BGSAVE两个命令都会调用rdbSave函数，但它们调用的方式各有不同：
+
+1. SAVE直接调用rdbSave，阻塞Redis主进程，直到保存完成。在主进程阻塞期间，服务器不能处理客户端的任何请求。
+
+2. BGSAVE则fork出一个子进程，子进程负责调用rdbSave，并在保存完成之后向主进程发送信号，通知保存已完成。
+因为rdbSave在子进程被调用，所以Server在BGSAVE执行期间仍然可以继续处理客户端的请求。
+
+下图的伪代码来描述这两个命令：
+\begin{lstlisting}[language=Python]
+def SAVE():
+    rdbSave()
+
+def BGSAVE():
+    pid = fork()
+    if pid == 0:
+        rdbSave()
+    elif pid > 0:
+        handle_request()
+    else:
+        # pid == -1
+        handle_fork_error()
+\end{lstlisting}
+
+\subsection{载入}
+当Redis服务器启动时，rdbLoad()就会被执行，它读取RDB文件，并将文件中的数据库数据载入到内存中。
+在载入期间，请求命令一律返回错误。等到载入完成之后，服务器才会开始正常处理所有命令。
+此外，因为AOF（下文会做阐述）文件的保存频率通常要高于RDB文件保存的频率，所以一般来说，AOF文件中的数据会比RDB文件中的数据要新。因此，如果服务器在启动时，配置文件里说明打开了AOF功能，那么程序优先使用AOF文件来还原数据。只有在AOF功能未打开的情况下，Redis才会使用RDB文件来还原数据。
+
+\subsection{RDB文件结构}
+RDB文件的结构也采用了编码的形式，并且相对于整数集合或者压缩列表更加复杂。
+RDB文件的整体格式如下：
+\begin{verbatim}
+|-----|-------|---------|---------------|---|---------|
+|REDIS|VERSION|SELECT-DB|KEY-VALUE-PAIRS|EOF|CHECK-SUM|
+|-----|-------|---------|---------------|---|---------|
+\end{verbatim}
+相关域的定义如~表\ref{tab:rdb}~所示：
+\begin{table}[htbp]
+\caption{RDB文件结构}\label{tab:rdb}
+\vspace{0.5em}{\wuhao
+\begin{tabularx}{\textwidth}{lX}
+\toprule[1.5pt]
+域 & 含义\\\midrule[1pt]
+REDIS & 文件前5 bytes，固定为“REDIS”，用来标识该文件为RDB文件。\\ \hline
+RDB-VERSION & RDB文件版本号。对RDB文件进行版本分类的原因是不同的版本可能数据编码方式不同，必须通过文件版本号来确定数据的读入方式。\\ \hline
+SELECT-DB & 数据库编号。\\ \hline
+KEY-VALUE-PAIRS & 数据库键值对集合（下文中做详细说明）。\\ \hline
+EOF & 标记结尾，此处的结尾指的是数据库结尾，而非文件结尾，为固定值255。\\ \hline
+CHECK-SUM & 整个RDB文件内容的校验和，为一个uint\_64t类型的整数。\\\bottomrule[1.5pt]
+\end{tabularx}}
+\vspace{\baselineskip}
+\end{table}
+
+从上文可以看出，最重要也是编码最复杂的部分即为数据库中键值对的编码方式，一个键值对的编码格式如下：
+\begin{verbatim}
+|--------------------|-------------|---|-----|
+|OPTIONAL-EXPIRE-TIME|TYPE-OF-VALUE|KEY|VALUE|
+|--------------------|-------------|---|-----|
+\end{verbatim}
+OPTIONAL-EXPIRE-TIME域是可选的，如果键没有设置过期时间，那么这个域就不会出现；反之，
+那么它记录着键的过期时间，在当前版本的RDB中，过期时间是一个以毫秒为单位的UNIX时间戳。
+
+TYPE-OF-VALUE域记录着VALUE域的值所使用的编码，
+根据这个域的指示，程序会使用不同的方式来保存和读取VALUE的值。
+
+KEY域保存着键，格式和REDIS\_ENCODING\_RAW编码的字符串对象一样（见下文）。
+
+由于VALUE保存的数据类型很多，有String，List，Set等，所以VALUE域保存的格式有跟多种，下文按照这个顺序来阐述具体的编码格式：
+\begin{enumerate}[label=\arabic*.]
+
+%%% REDIS_ENCODING_INT 编码的 REDIS_STRING 类型对象：
+\item{
+String（通过REDIS\_ENCODING\_INT编码）\\
+在这种情况下，String能直接表示成8位、16位或者32位的有符号整数，例如“9”可以直接用0000 1001来保存，如果超过了int32\_t的大小，则退化成字符序列的形式保存。一个字符序列结构如下：
+\begin{verbatim}
+!---!-------!
+|LEN|CONTENT|
+!---!-------!
+\end{verbatim}
+其中，LEN保存了以byte为单位的字符长度，CONTENT域保存了字符内容。
+当进行载入时，先读入LEN，创建一个长度等于LEN的字符串对象，然后再从文件中读取LEN字节数据，并将这些数据设置为字符串对象的值。
+}
+
+%%% REDIS_ENCODING_RAW 编码的 REDIS_STRING 类型值有三种保存方式：
+\item{
+String（通过REDIS\_ENCODING\_RAW编码）\\
+如果String不能被表示成整数，那么它就按正常的字符串序列的方式进行保存，方式和上文String（通过REDIS\_ENCODING\_INT编码）中的方法一样，采用“LEN + CONTENT”的结构进行存储。
+
+但是，如果Server配置文件里说明了使用“LZF压缩算法”的话，存储格式就变成如下所示：
+\begin{verbatim}
+|--------|--------------|------------------|
+|LZF-FLAG|COMPRESSED-LEN|COMPRESSED-CONTENT|
+|--------|--------------|------------------|
+最前面的LZF-FLAG标示符说明这是经过LZF算法压缩过的字符串，COMPRESSED-LEN是该数据的字节长度，COMPRESSED-CONTENT是被压缩后的字符串数据。
+\end{verbatim}
+}
+
+%%% REDIS_ENCODING_LINKEDLIST 编码的 REDIS_LIST 类型
+\item{
+LIST（通过REDIS\_ENCODING\_LINKEDLIST编码）\\
+这个通过LINKEDLIST的形式来保存一个LIST，结构如下：
+\begin{verbatim}
+|---------|------------|------------|---|------------|
+|LIST-SIZE|NODE-VALUE-1|NODE-VALUE-2|...|NODE-VALUE-N|
+|---------|------------|------------|---|------------|
+\end{verbatim}
+其中LIST-SIZE保存链表节点数量，之后节点值的保存方式和字符串的保存方式一样。当进行载入时，先读取节点的数量，然后创建一个新的链表，最后一直执行“载入结点，添加到链表”的步骤。
+}
+
+%%% REDIS_ENCODING_HT 编码的 REDIS_SET 类型值保存为以下结构：
+\item{
+Set（通过REDIS\_ENCODING\_HT编码）\\
+Set的表示结构和上文的List表示结构基本一致，如下所示：
+\begin{verbatim}
+|--------|---------|---------|---|---------|
+|SET-SIZE|ELEMENT-1|ELEMENT-2|...|ELEMENT-N|
+|--------|---------|---------|---|---------|
+\end{verbatim}
+其中SET-SIZE记录了集合元素的数量，之后元素值的保存方式和字符串的保存方式一样。
+载入时，读入器先读入集合元素的数量SET-SIZE，再连续读入SET-SIZE个字符串，并将这些字符串作为新元素添加至新创建的集合。
+}
+\end{enumerate}
+
+
+
+
+\section{AOF}
 
 
 

@@ -429,7 +429,7 @@ TYPE-OF-VALUE域记录着VALUE域的值所使用的编码，
 
 KEY域保存着键，格式和REDIS\_ENCODING\_RAW编码的字符串对象一样（见下文）。
 
-由于VALUE保存的数据类型很多，有String，List，Set等，所以VALUE域保存的格式有跟多种，下文按照这个顺序来阐述具体的编码格式：
+由于VALUE保存的数据类型很多，有String，List，Set，Sorted Set，Hash等，所以VALUE域保存的格式有跟多种，下文按照这个顺序来阐述具体的编码格式：
 \begin{enumerate}[label=\arabic*.]
 
 %%% REDIS_ENCODING_INT 编码的 REDIS_STRING 类型对象：
@@ -437,9 +437,9 @@ KEY域保存着键，格式和REDIS\_ENCODING\_RAW编码的字符串对象一样
 String（通过REDIS\_ENCODING\_INT编码）\\
 在这种情况下，String能直接表示成8位、16位或者32位的有符号整数，例如“9”可以直接用0000 1001来保存，如果超过了int32\_t的大小，则退化成字符序列的形式保存。一个字符序列结构如下：
 \begin{verbatim}
-!---!-------!
+|---|-------|
 |LEN|CONTENT|
-!---!-------!
+|---|-------|
 \end{verbatim}
 其中，LEN保存了以byte为单位的字符长度，CONTENT域保存了字符内容。
 当进行载入时，先读入LEN，创建一个长度等于LEN的字符串对象，然后再从文件中读取LEN字节数据，并将这些数据设置为字符串对象的值。
@@ -455,7 +455,7 @@ String（通过REDIS\_ENCODING\_RAW编码）\\
 |--------|--------------|------------------|
 |LZF-FLAG|COMPRESSED-LEN|COMPRESSED-CONTENT|
 |--------|--------------|------------------|
-最前面的LZF-FLAG标示符说明这是经过LZF算法压缩过的字符串，COMPRESSED-LEN是该数据的字节长度，COMPRESSED-CONTENT是被压缩后的字符串数据。
+最前面的LZF-FLAG标示符说明这是经过LZF算法压缩过的字符串，COMPRESSED-LEN是该字符串的字节长度，COMPRESSED-CONTENT是被压缩后的字符串数据。
 \end{verbatim}
 }
 
@@ -468,7 +468,7 @@ LIST（通过REDIS\_ENCODING\_LINKEDLIST编码）\\
 |LIST-SIZE|NODE-VALUE-1|NODE-VALUE-2|...|NODE-VALUE-N|
 |---------|------------|------------|---|------------|
 \end{verbatim}
-其中LIST-SIZE保存链表节点数量，之后节点值的保存方式和字符串的保存方式一样。当进行载入时，先读取节点的数量，然后创建一个新的链表，最后一直执行“载入结点，添加到链表”的步骤。
+其中LIST-SIZE保存链表节点数量，之后节点值的保存方式和字符串的保存方式一样。当进行载入时，先读取节点的数量LIST-SIZE，然后创建一个新的链表，最后一直执行“载入结点，添加到链表”的步骤。
 }
 
 %%% REDIS_ENCODING_HT 编码的 REDIS_SET 类型值保存为以下结构：
@@ -481,12 +481,59 @@ Set的表示结构和上文的List表示结构基本一致，如下所示：
 |--------|---------|---------|---|---------|
 \end{verbatim}
 其中SET-SIZE记录了集合元素的数量，之后元素值的保存方式和字符串的保存方式一样。
-载入时，读入器先读入集合元素的数量SET-SIZE，再连续读入SET-SIZE个字符串，并将这些字符串作为新元素添加至新创建的集合。
+当进行载入时，先读入集合元素的数量SET-SIZE，然后创建一个新的Hash表，最后一直执行“载入字符串，添加到Hash表”的步骤。
+}
+
+%%% REDIS_ENCODING_SKIPLIST 编码的 REDIS_ZSET 类型值保存为以下结构：
+\item{
+Sorted Set（通过REDIS\_ENCODING\_SKIPLIST编码）\\
+Sorted Set的表示结构和上文的List表示结构基本一致，其中一个节点分成了成员和分数，如下所示：
+\begin{verbatim}
+|---------|--------|-------|---|--------|-------|
+|ZSET-SIZE|MEMBER-1|SCORE-1|...|MEMBER-N|SCORE-N|
+|---------|--------|-------|---|--------|-------|
+\end{verbatim}
+其中ZSET-SIZE记录了集合元素的数量。
+当进行载入时，先读取有序集元素数量，创建一个新的Skiplist，最后一直执行“载入member（字符串），载入score（字符串），添加到新的Skiplist”的步骤。
+}
+
+%%% REDIS_ENCODING_HT 编码的 REDIS_HASH 类型值保存为以下结构：
+\item{
+Hash（通过REDIS\_ENCODING\_HT编码）\\
+Hash的表示结构和上文的List表示结构基本一致，其中一个节点分成了键和值，如下所示：
+\begin{verbatim}
+|---------|-----|-------|---|-----|-------|
+|HASH-SIZE|KEY-1|VALUE-1|...|KEY-N|VALUE-N|
+|---------|-----|-------|---|-----|-------|
+\end{verbatim}
+其中HASH-SIZE记录了Hash表键值对的数量。
+当进行载入时，先读取Hash表大小，创建一个新的Hash表，最后一直执行“载入key（字符串），载入value（字符串），添加到新的Hash表”的步骤。
+}
+
+%%% REDIS_LIST 类型、 REDIS_HASH 类型和 REDIS_ZSET 类型都使用了 REDIS_ENCODING_ZIPLIST 编码
+\item{
+List、Hash、Zset（通过REDIS\_ENCODING\_ZIPLIST编码）\\
+List、Hash、Zset可以通过压缩列表（ziplist）来保存，保存方式如下：
+\begin{verbatim}
+|---|-------|
+|LEN|ZIPLIST|
+|---|-------|
+\end{verbatim}
+当进行载入时，先读入压缩列表长度LEN，再根据LEN读入数据，最后将数据还原成一个ziplist。
+}
+
+%%% REDIS_ENCODING_INTSET 编码的 REDIS_SET 类型值保存为以下结构：
+\item{
+Set（通过REDIS\_ENCODING\_INTSET编码）\\
+当Set可以用intset来保存时，保存方式如下：
+\begin{verbatim}
+|---|------|
+|LEN|INTSET|
+|---|------|
+\end{verbatim}
+当进行载入时，先读入压缩列表长度LEN，再根据LEN读入数据，最后将数据还原成一个intset。
 }
 \end{enumerate}
-
-
-
 
 \section{AOF}
 

@@ -644,7 +644,7 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 
 %%% 第五章  系统实现  %%%
 \chapter{系统实现}
-\section{系统功能}
+\section{相关功能}
 本内存数据库系统功能主要分两部分：Redis原命令部分，SQL部分，系统的功能结构如图~\ref{fig:Command}~所示。
 \begin{figure}[H]
 \centering
@@ -654,8 +654,14 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 \end{figure}
 系统根据用户输入的命令语句来选择具体的模块来执行。
 
-\section{系统界面}
+\section{主界面}
 本内存数据库系统界面采用PyQT4开发，包含了简单的执行命令，获得执行结果等功能，界面截图如下：
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{GUI}
+\caption{系统界面截图}\label{fig:GUI}
+\vspace{\baselineskip} %表示图与正文空一行
+\end{figure}
 
 \section{系统架构}
 在上文中，图~\ref{fig:Command}~说明了主要的功能模块，包括SQL模块和Redis元命令模块，这两个模块的主要功能就是执
@@ -667,37 +673,39 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
 
-\section{系统目录}
-%%% TODO 系统目录规划表 %%%
-系统的目录规划表主要分两个部分：Redis Server部分和GUI界面部分，如表~\ref{tab:redis-files}~和表~\ref{tab:GUI-files}~所示。
+% \section{文件夹目录}
+% %%% TODO 系统目录规划表 %%%
+% 系统的目录表主要分两个部分：Redis Server部分和GUI界面部分，具体结构如表~\ref{tab:files}~所示。
 
-\begin{table}[H]
-\centering
-\caption{系统目录规划表（Redis Server部分）}\label{tab:redis-files}
-\vspace{0.5em}{\centering\wuhao
-\begin{tabular}{|c|c|}
-\toprule[1.5pt]
-目录 & 名称及说明\\
-\midrule[1pt]
-表中数据(1,1) & 表中数据(1,2)\\
-\bottomrule[1.5pt]
-\end{tabular}}
-\vspace{\baselineskip}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{文件夹}\label{tab:files}
+% \vspace{0.5em}{\centering\wuhao
+% \begin{tabular}{|c|c|}
+% \toprule[1.5pt]
+% 目录 & 名称及说明\\
+% \midrule[1pt]
+% /tredis & Redis根目录\\
+% /tredis/src & Redis根目录\\
+% /tredis & Redis根目录\\
+% \bottomrule[1.5pt]
+% \end{tabular}}
+% \vspace{\baselineskip}
+% \end{table}
 
-\begin{table}[H]
-\centering
-\caption{系统目录规划表（GUI部分）}\label{tab:GUI-files}
-\vspace{0.5em}{\centering\wuhao
-\begin{tabular}{|c|c|}
-\toprule[1.5pt]
-目录 & 名称及说明\\
-\midrule[1pt]
-表中数据(1,1) & 表中数据(1,2)\\
-\bottomrule[1.5pt]
-\end{tabular}}
-\vspace{\baselineskip}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \caption{系统目录规划表（GUI部分）}\label{tab:GUI-files}
+% \vspace{0.5em}{\centering\wuhao
+% \begin{tabular}{|c|c|}
+% \toprule[1.5pt]
+% 目录 & 名称及说明\\
+% \midrule[1pt]
+% 表中数据(1,1) & 表中数据(1,2)\\
+% \bottomrule[1.5pt]
+% \end{tabular}}
+% \vspace{\baselineskip}
+% \end{table}
 
 
 %%% 第六章 性能对比 %%%
@@ -707,8 +715,11 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 % 第七章 总结    25
 \chapter{总结}
 \section{完成的工作}
-
+实现了基于Redis和SQLite开发的内存数据库系统的方案，并开发了功能较为简单的GUI界面，然后对其性能（和MySQL 5.
+5）进行了对比测试。
 \section{存在的问题及下一步工作}
+存在的问题主要是GUI的功能不全，缺少其他比较重要的功能，例如文件树等。
+接下去的工作主要是完善GUI中相关的功能并做测试，其次继续深入Redis的源代码，了解其其他模块的相关功能，例如对象处理机制，事务，频道订阅与发布，消息的发送等。
 
 % \makeatother
 \backmatter

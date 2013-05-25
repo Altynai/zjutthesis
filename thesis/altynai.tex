@@ -85,7 +85,7 @@ SAP HANA是一款面向数据源的、灵活、多用途的内存应用设备，
 \subsection{SQLite}
 SQLite是一个用C语言编写的小型的、轻量级的、绿色、开源、轻便的数据库。它最大的特点是没有类型的概念，说明可
 以保存任何类型的数据到表的任何位置中。此外，它具有很强的移植性，可以运行在Windows、Linux、BSD、Mac OS X
-和一些商用UNIX系统上。
+和一些商用UNIX系统上[23]。
 
 \section{本文主要工作}
 本文在内存数据库的相关基础上，拿Redis作为例子，分析了其底层相关的数据结构，以及其持久化方式。
@@ -151,16 +151,16 @@ Redis中的列表操作“LPUSH”用来插入一个内容ID，作为关键字�
 上文已经对SQLite做了的基本的介绍，由于本内存数据库系统基于Redis和SQLite的接口开发， 所以这里主要介绍SQLite的C语言接口部分，几个主要并且常用的接口如下：
 \begin{enumerate}[label=（\arabic*）]
 \item{
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 int sqlite3_open(
   const char *filename,
   sqlite3 **ppDb
 );
-\end{verbatim}
+\end{lstlisting}
 打开指定数据库文件，将**ppdb绑定到数据库连接对象，返回打开结果代码。因为其他接口函数一般都需要一个指向数据库文件的指针，所以一般这个函数在最前面调用，为其他函数做准备工作，如果数据库文件不存在，则自动新建一个。
 }
 \item{
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 int sqlite3_prepare(
   sqlite3 *db,
   const char *zSql,
@@ -168,26 +168,26 @@ int sqlite3_prepare(
   sqlite3_stmt **ppStmt,
   const char **pzTail
 );
-\end{verbatim}
+\end{lstlisting}
 将UTF-8编码的SQL语句编译成字节码，将结果保存到**ppStmt，
 以便后面的执行函数方便执行。
 而sqlite3\_prepare16()则是UTF-16编码的版本。
 }
 \item{
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 int sqlite3_finalize(sqlite3_stmt *pStmt);
-\end{verbatim}
+\end{lstlisting}
 撤销准备好的SQL声明（sqlite3\_stmt），当数据库连接关闭的时候，所有准备好的SQL声明都必须
 被释放销毁。
 }
 \item{
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 int sqlite3_close(sqlite3*);
-\end{verbatim}
+\end{lstlisting}
 关闭之前通过sqlite3\_open()打开的数据库文件连接对象。
 }
 \item{
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 int sqlite3_exec(
   sqlite3*,
   const char *sql,
@@ -195,13 +195,13 @@ int sqlite3_exec(
   void *,
   char **errmsg
 );
-\end{verbatim}
+\end{lstlisting}
 编译和执行多条SQL语句，将查询的结果返回给回调函数，如果执行错误，将错误记录到errmsg。
 }
 \end{enumerate}
 
 \section{PyQT4}
-PyQT是一个生成图形应用程序的工具包。是python语言和成功的Qt库的绑定。Qt库是这个世界上最强大的库之一，PyQT作为一组python的模块来实现。它包含了超过300个类，将近6000个函数和方法。它是一个多平台的工具包，可以在所有的主流操作系统上运行，包括Unic，Windows和Mac。PyQT采用双协议，开发者可以在GPL和商业授权中选择。以前的版本中，GPL版本只存在于Unic上。从PyQT4开始，GPL协议支持所有的平台。QtCore模块包含了核心的非图形功能，这个模块被用来实现时间，文件和目录，不同的数据格式，流，互联网地址，mime类型，线程或进程等等。QtGui模块包含了图形组件和类的描述，包括例如按钮，窗口，状态栏，滑块，位图，颜色，字体等等。
+PyQT是一个生成图形应用程序的工具包。是python语言和成功的Qt库的绑定。Qt库是这个世界上最强大的库之一，PyQT作为一组python的模块来实现。它包含了超过300个类，将近6000个函数和方法。它是一个多平台的工具包，可以在所有的主流操作系统上运行，包括Unic，Windows和Mac。PyQT采用双协议，开发者可以在GPL和商业授权中选择。以前的版本中，GPL版本只存在于Unic上。从PyQT4开始，GPL协议支持所有的平台。QtCore模块包含了核心的非图形功能，这个模块被用来实现时间，文件和目录，不同的数据格式，流，互联网地址，mime类型，线程或进程等等。QtGui模块包含了图形组件和类的描述，包括例如按钮，窗口，状态栏，滑块，位图，颜色，字体等等[24]。
 
 QtCore模块包含了核心的非图形功能，这个模块被用来实现时间，文件和目录，不同的数据格式，流，互联网地址，mime类型，线程或进程等等。
 
@@ -710,7 +710,41 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 
 %%% 第六章 性能对比 %%%
 \chapter{性能对比}
-对于一个内存数据库系统而言，性能是非常重要的一个因素。为了测试本内存数据库系统的实际性能，将MySQL（5.5）作为参照数据库，通过一定量的读写操作，来对比两者在性能上的差异，具体结果如下图所示：
+对于一个内存数据库系统而言，性能是非常重要的一个因素。为了测试本内存数据库系统的实际性能，将MySQL（5.5）作为参照数据库，通过一定量的读写操作，来对比两者在性能上的差异，具体结果如表~\ref{tab:redis-mysql}~所示：
+
+\begin{table}[H]
+\centering
+\caption{性能对比}\label{tab:redis-mysql}
+\vspace{0.5em}{\centering\wuhao
+\begin{tabular}{cccc}
+\toprule[1.5pt]
+ & 内存数据库（无索引） & MySQL & 内存数据库（索引）\\
+\midrule[1pt]
+写的条数 & 3294 & 3294 & 3294 \\
+写的时间 & 0.851782083511秒 & 2.95379686356秒 & 0.939613819122秒 \\
+写的速度 & 3867条/秒 & 1115条/秒 & 3505条/秒\\ \hline
+
+读的条数 & 10000 & 10000 & 10000\\
+读的时间 & 10.441368103秒 & 10.3408880234秒 & 5.75849199295秒 \\
+读的速度 & 957条/秒 & 967条/秒 & 1736条/秒 \\
+
+% line:[196] 2013-05-25 19:34:08,157 sql.py INFO mysql write:3294 times
+% line:[197] 2013-05-25 19:34:08,158 sql.py INFO mysql write:2.95379686356s
+% line:[198] 2013-05-25 19:34:08,158 sql.py INFO mysql read:10.3408880234s
+
+% line:[156] 2013-05-25 19:34:19,483 sql.py INFO redis witre:3294 times
+% line:[157] 2013-05-25 19:34:19,483 sql.py INFO redis witre:0.851782083511s
+% line:[158] 2013-05-25 19:34:19,484 sql.py INFO redis read:10.441368103s
+
+% line:[156] 2013-05-25 19:34:26,241 sql.py INFO redis witre:3294 times
+% line:[157] 2013-05-25 19:34:26,241 sql.py INFO redis witre:0.939613819122s
+% line:[158] 2013-05-25 19:34:26,241 sql.py INFO redis(With Index) read:5.75849199295s
+\bottomrule[1.5pt]
+\end{tabular}}
+\vspace{\baselineskip}
+\end{table}
+
+从表~\ref{tab:redis-mysql}~可以看出，性能的瓶颈在于是否进了索引。
 
 % 第七章 总结    25
 \chapter{总结}

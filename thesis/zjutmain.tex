@@ -24,6 +24,7 @@
 
 \pagenumbering{Roman}
 \include{preface/absc}     % 中文摘要
+\pagenumbering{Roman}
 \include{preface/abse}     % English Abstract
 
 %%%%%%%%%% 目录 %%%%%%%%%%
@@ -32,8 +33,11 @@
 % \titleformat{\chapter}{\centering\hei\sanhao\bfseries}{\chaptername}{2em}{} %设置目录两字的格式
 
 \tableofcontents           % 中文目录
+\pagenumbering{Roman}
 \listoffigures             % 图目录
+\pagenumbering{Roman}
 \listoftables              % 表目录
+\pagenumbering{Roman}
 
 % \defaultfont\sloppy\raggedbottom
 % \titleformat{\chapter}{\centering\hei\xiaoer\bfseries}{\chaptername}{2em}{} %恢复chapter标题格式要求
@@ -44,93 +48,81 @@
 
 
 %%% 第一章 绪论 %%%
-% 1.1	字体标题（２级标题，小三，宋体，加粗，段前12磅，段后6磅，1.5倍行距）	1
-% 1.2	图表说明	1
-% 1.3	公式	2
-% 1.4	本文的主要工作	2
-% 1.5	本文的组织结构	2
-% 1.6	本章小结	3
-
 \chapter{绪论}
-\section{课题研究背景}
-1969年，埃德加•弗兰克•科德(Edgar Frank Codd)发表了一篇划时代的论文，首次提出关系数据模型的概念。但可惜的是，刊登论文的“IBM Research Report”只是IBM公司的内部刊物，因此论文反响平平。1970年，他再次在刊物《Communication of the ACM》上发表了题为“A Relational Model of Data for Large Shared Data banks”(大型共享数据库的关系模型)的论文，终于引起了大家的关注。
+\section{研究背景}
+这几年是互联网的高速发展期，各种类型的应用层出不穷，这对相关技术方面提出了更多的要求。用于数据储存传统关系型数据库（比如SQL Server等）面临着越来越多的挑战，这些挑战主要体现在以下几个方面：
 
-科德所提出的关系数据模型的概念成为了现今关系型数据库的基础。当时的关系型数据库由于硬件性能低劣、处理速度过慢而迟迟没有得到实际应用。但之后随着硬件性能的提升，加之使用简单、性能优越等优点，关系型数据库得到了广泛的应用。
+低延迟I/O、海量级别的数据和流量、大规模集群监控管理、日益增长运营成本。
 
-但是现如今随着互联网的不断发展，各种类型的应用层出不穷，所以导致在这个云计算的时代，对技术提出了更多的需求，传统关系型数据库面临很多问题，主要体现在下面这四个方面：
-\begin{enumerate}[label=（\arabic*）]
-\item{低延迟的读写速度：应用快速地反应能极大地提升用户的满意度}
-\item{支撑海量的数据和流量：对于搜索这样大型应用而言，需要利用PB级别的数据和能应对百万级的流量}
-\item{大规模集群的管理：系统管理员希望分布式应用能更简单的部署和管理}
-\item{庞大运营成本的考量：IT经理们希望在硬件成本、软件成本和人力成本能够有大幅度地降低}
-\end{enumerate}
+鉴于上文所提及的那些挑战，时下热门的内存数据库越来越展
+现其超强的能力。首先，把数据保存在内存中能极大地提高程序应用的性能，这也导致数据必须重新设计组织，
+使得数据在内存中以新的方式存储（下文会做详细的介绍）。
+其次，内存数据库的原理是通过内存资源作为牺牲来换取数据处理
+的实时性，简单的说就是“用空间来换取时间”。然而，内存数据库并不是完全的将所有数据都保存在内存中，但是，这个前提是需要大内存量的支持。
 
-虽然关系型数据库已经在业界的数据存储方面占据不可动摇的地位，但是由于其天生的几个限制，使其很难满足下面的这几个需求：
-\begin{enumerate}[label=（\arabic*）]
-\item{扩展困难：当需要表与表之间Join操作时，数据库就不能很好的进行扩展}
-\item{读写速度慢：当数据量达到较大规模的时候，很容易发生死锁的问题，直接导致读写速度急剧下降的问题}
-\item{成本高：企业级数据库的License价格惊人，且随着系统的规模而不断上升}
-\item{有限的支撑容量：现有关系型解决方案还无法支撑Google这样海量的数据存储}
-\end{enumerate}
+但是，并不能直接认为内存数据库就能取代关系型数据库。
+因为两者的出发点并不相同，或者说两者所针对的方面不同。
+对于关系型数据库，它的重点在于解决大容量数据的储存和分析
+问题，而内存数据库的重点在于解决数据的实时处理和高并发问题。
+两者是相辅相成的，内存数据库在事务的实时处理要比关系型数据库
+强，但数据安全稳定方面不能和其相比了。
 
-而因此思想诞生的内存数据库（MMDB）对数据访问读取有着很高的效率，对于一些需要
-在严格要求的时间段内完成事务请求
-的实时应用系统，和需要支持大量并发访问的高性能事务处理平台来而言，它都是一个很不错的选择。
+所以，在实际应用中，通常是两种数据库结合使用，而不是完全以内存
+数据库代替传统数据库。
 
-\section{研究与应用现状}
-国内外相关人员经过长年的研究，设计并实现了多种内存数据库的
-模型及商用或开源的产品。商用MMDB的代表产品有AltiBase、Timesten，SAP HANA等，开源
-产品主要有FastDB、SQLite、Redis等，下文对一些数据库做简单的介绍：
-
+\section{内存数据库产品}
 \subsection{Oracle TimesTen}
-Oracle TimesTen内存数据库是一个功能全面的关系型内存数据库，旨在通过在应用层的运行，加速处理响应时间和关键任务型应用所需的高吞吐量。从某种角度上来看，TimesTen也是一种Cache机制，是磁盘数据库的‘Cache’，通过物理内存中的数据存储区的直接操作，减少了到磁盘间的I/O交互。TimesTen中的这个Ten据说就是指速度能达到基于磁盘的RDBMS10倍。
+作为一个关系型的内存数据库，TimesTen功能全面，它运行在应
+用层，从而缩短处理响应时间和提高吞吐
+量。话句话说，TimesTen是磁
+盘数据库的“Cache”，通过物理内存中的数据存储区的直接操
+作，减少了到磁盘间的I/O交互。
 
 \subsection{SAP HANA}
-SAP HANA是一款面向数据源的、灵活、多用途的内存应用设备，整合了基于硬件优化的SAP软件模块，通过SAP主要硬件合作伙伴提供给客户。SAP HANA提供灵活、节约、高效、实时的方法管理海量数据。利用HANA，企业可以不必运行多个数据仓库、运营和分析系统，从而削减相关的硬件和维护成本。SAPHANA将在内存技术基础上，为新的创新应用程序奠定技术基础，支持更高效的业务应用程序，如：计划、预测、运营绩效和模拟解决方案。
+SAP HANA是一款面向数据源的、灵活、多用途的内存应用设备，整合了基于硬件优化的SAP软件模块，通过SAP主要硬件合作伙伴提供给客户。SAP HANA提供灵活、节约、高效、实时的方法管理海量数据。利用HANA，企业可以不必运行多个数据仓库、运营和分析系统，从而削减相关的硬件和维护成本。HANA将在内存技术基础上，为新的创新应用程序奠定技术基础，支持更高效的业务应用程序，如：计划、预测、运营绩效和模拟解决方案[8]。
 
 \subsection{Redis}
-Redis是一个高性能的key-value存储系统。和Memcached类似，它支持存储的value类型相对更多，包括string（字符串）、list（链表）、set（集合）和zset（有序集合）。这些数据类型都支持push/pop、add/remove及取交集并集和差集及更丰富的操作，而且这些操作都是原子性的。在此基础上，redis支持各种不同方式的排序。与memcached一样，为了保证效率，数据都是缓存在内存中。区别的是redis会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件，并且在此基础上实现了master-slave（主从）同步。
+作为一个Key-Value储存系统，Redis支持存储的value类型很多，包括字符串、链表、集合和有序集合。为了保证效率，
+数据都是缓存在内存中，同时Redis会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件，并且在此基
+础上实现了主从同步[22]。
+
+\subsection{SQLite}
+SQLite是一个用C语言编写的小型的、轻量级的、绿色、开源、轻便的数据库。它最大的特点是没有类型的概念，说明可
+以保存任何类型的数据到表的任何位置中。此外，它具有很强的移植性，可以运行在Windows、Linux、BSD、Mac OS X
+和一些商用UNIX系统上[23]。
 
 \section{本文主要工作}
-本文的主要工作是在详细分析内存数据库系统需求的基础上，对其详细设计和具体实现以及之后的相关测试进行阐述。
+本文在内存数据库的相关基础上，拿Redis作为例子，分析了其底层相关的数据结构，以及其持久化方式。
+在底层数据结构方面，首先，结合部分伪代码介绍了最基础的内部数据结构，包括char*的“替代品”sds，双端列表，字
+典（映射），跳跃表等，这些都是底层数据结构，是上层字符串或者数据结构（如Hash表，列表，集合，有序集合等）的
+底层实现。此外，在此基础上了，介绍了两个Redis内存映射数据结构（整数集合，压缩列表），并结合伪代码分析其工
+作原理。然后，介绍了Redis目前支持的两种持久化方式，并对两种方式进行比较。
+
+最后，本文阐述了基于Redis和SQLite开发的内存数据库系统的实现方案，以及主要功能模块的实现流程，以及本内存数据库在性能上和关系型数据库的差异。
 
 \section{本文的组织结构}
 本文共分为八章，以内存数据库为背景，研究讨论了基于Redis并支持SQL架构的内存数据库，详细阐述了如何利用该框架技术对系统的模块进行设计与实现，各章内容如下：
 
-第一章，介绍了课题研究的背景，国内外相关领域的研究及应用，课题研究的主要任务和本文的主要工作。
+第一章，介绍了内存数据库研究的背景，一些相关产品和本文的主要工作。
 
-第二章，详细介绍了内存数据库应用系统开发的方法与技术，为系统的后续开发做准备。
+第二章，详细介绍了内存数据库系统开发的方法与技术。
 
-第三章，重点介绍了内存数据库应用系统的需求。
+第三章，重点介绍了数据的存储结构。
 
-第四章，具体介绍了内存数据库应用系统的概要设计。
+第四章，具体介绍了数据的持久化。
 
-第五章，详细介绍了内存数据库应用系统的详细设计。其内容包括开发规范的确定、系统所采用框架的整合设计、功能模块的详细设计和系统性能要求的详细设计。
+第五章，详细介绍了基于Redis和SQLite的内存数据库的实现。
 
-第六章，着重阐述了内存数据库应用系统的具体实现，针对第五章提出的详细设计要求，在本章给出系统的技术实现，具体包括系统框架整合实现、功能性能要求实现和系统功能模块实现。
+第六章，与MySQL（5.5）进行性能对比。
 
-第七章，系统测试与系统使用说明。
-
-第八章，对系统开发进行总结并提出下一步工作。
+第七章，对系统开发进行总结并提出下一步工作。
 
 
 %%% 第二章 方法与技术 %%%
-% 2.1	Spring框架简介	4
-% 2.1.1	Spring的控制反转(IoC)(3级标题，四号，宋体，加粗，段前６磅，1.5倍行距，建议不使用四级或更高级别目录、标题)	4
-% 2.1.2	面向切面编程(AOP)	4
-% 2.1	Hibernate框架	4
-% 2.2	AJAX	5
-% 2.3	Ext框架	5
-% 2.4	DWR技术	5
-% 2.5	开发环境	5
-% 2.5.1	服务器端环境要求	5
-% 2.5.2	客户端环境要求	5
-% 2.6	主要开发语言	6
-% 2.7	开发原则	6
-% 2.8	本章小结	6
-
 \chapter{方法与技术}
-本系统采用了后端Redis配合SQLite的C语言接口，前端GUI使用PyQT4的架构，实现了支持一些基础SQL语句的内存数据库应用系统，本章将对上述知识进行简要的阐述。
+上文说到，Redis并非是传统的关系型数据库，无法支持SQL语句解析，所以本系统在这基础上配合采用了SQLite的接口，同时为Redis新增加了一个基于SQLite的“sql”命令。至此，可以通过sql命令来进行数据库的表操作，表中的所有数据完全存储在内存中，此外，根据Redis.conf的配置，可以设置表中数据库每次保存到硬盘的间隔，这样做可以保证数据的正确性，防止出现可能的断电宕机使数据丢失的情况。
+
+本内存数据库系统采用了后端SQLite的C语言接口嵌入Redis，前端GUI使用PyQT4的架构进行开发，实现了支持一些基础SQL语句的内存数据库应用系统，本章将对上述知识进行简要的阐述，主要具体介绍Redis，包括其一些原理和常用的应用场景，还有PyQT4模块的一些基本模块知识。
 
 \section{Redis}
 Redis是一个开源的使用ANSI C语言编写、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API。作为Key-value型数据库，Redis也提供了键（Key）和键值（Value）的映射关系。但是，除了常规的数值或字符串，Redis的键值还可以是以下形式之一：
@@ -145,17 +137,75 @@ Hashes（哈希表）
 
 键值的数据类型决定了该键值支持的操作。Redis支持诸如列表、集合或有序集合的交集、并集、差集等高级原子操作；同时，如果键值的类型是普通数字，Redis则提供自增等原子操作。通常，Redis将数据存储于内存中，或被配置为使用虚拟内存。通过两种方式可以实现数据持久化：使用快照的方式，将内存中的数据不断写入磁盘；或使用类似MySQL的日志方式，记录每次更新的日志。前者性能较高，但是可能会引起一定程度的数据丢失；后者相反。
 
-相比需要依赖磁盘记录每个更新的数据库，基于内存的特性无疑给Redis带来了非常优秀的性能。读写操作之间没有显著的性能差异，如果Redis将数据只存储于内存中。
+相比需要依赖磁盘记录每个更新的数据库，基于内存的特性无疑给Redis带来了非常优秀的性能。读写操作之间没有显著的性能差异，如果Redis将数据只存储于内存中。下文简单列举了Redis在当下Web应用开发中一些常用的场景，其中结合了相关的Redis命令作为具体场景使用的介绍：
+
+\begin{enumerate}[label=（\arabic*）]
+\item{保存个人主页中内容列表（如微博新鲜事）。
+Redis中的列表操作“LPUSH”用来插入一个内容ID，作为关键字存储在列表头部，同时配合LTRIM来限制列表中的项目数。}
+
+\item{相关排行榜。Redis中的有序集合操作“ZADD”命令可以直接实现这个功能，此外，命令“ZREVRANGE”可以用来按照得分来获取前几名的数据。}
+
+\item{队列。除了“push”和“pop”类型的命令之外，Redis还有阻塞队列的命令，能够让一个程序在执行时被另一个程序添加到队列。}
+
+\item{缓存。对于Redis这种“Key-Value”系统而言，用它来实现缓存会很轻松、方便、高效。
+如果你想自己专门编写代码来完成，这样的开销相对而言可能太大。}
+\end{enumerate}
 
 \section{SQLite}
-SQLite是遵守ACID的关系数据库管理系统，它包含在一个相对小的C库中。它是D.RichardHipp创建的公有领域项目。
-不像常见的客户端/服务器结构范例，SQLite引擎不是个程序与之通信的独立进程，而是连接到程序中成为它的一个主要部分。所以主要的通信协议是在编程语言内的直接API调用。这在消耗总量、延迟时间和整体简单性上有积极的作用。整个数据库（定义、表、索引和数据本身）都在宿主主机上存储在一个单一的文件中。它的简单的设计是通过在开始一个事务的时候锁定整个数据文件而完成的。
-
-\section{Python}
-Python是个成功的脚本语言。它最初由Guido van Rossum开发，在1991年第一次发布。Python由ABC和Haskell语言所启发。Python是一个高级的、通用的、跨平台、解释型的语言，一些人更倾向于称之为动态语言。它很易学，Python是一种简约的语言。它的最明显的一个特征是，不使用分号或括号，Python使用缩进。最近的版本是2.7(3.2)，2011年二月发布。现在，Python由来自世界各地的庞大的志愿者维护。Python是那些想要学习编程的人的理想的入门语言，它支持多种编程模式，它不强制程序员使用特定的模式。Python支持面向对象和面向过程编程，也有限的支持函数式编程。
+上文已经对SQLite做了的基本的介绍，由于本内存数据库系统基于Redis和SQLite的接口开发， 所以这里主要介绍SQLite的C语言接口部分，几个主要并且常用的接口如下：
+\begin{enumerate}[label=（\arabic*）]
+\item{
+\begin{lstlisting}[language=C]
+int sqlite3_open(
+  const char *filename,
+  sqlite3 **ppDb
+);
+\end{lstlisting}
+打开指定数据库文件，将**ppdb绑定到数据库连接对象，返回打开结果代码。因为其他接口函数一般都需要一个指向数据库文件的指针，所以一般这个函数在最前面调用，为其他函数做准备工作，如果数据库文件不存在，则自动新建一个。
+}
+\item{
+\begin{lstlisting}[language=C]
+int sqlite3_prepare(
+  sqlite3 *db,
+  const char *zSql,
+  int nByte,
+  sqlite3_stmt **ppStmt,
+  const char **pzTail
+);
+\end{lstlisting}
+将UTF-8编码的SQL语句编译成字节码，将结果保存到**ppStmt，
+以便后面的执行函数方便执行。
+而sqlite3\_prepare16()则是UTF-16编码的版本。
+}
+\item{
+\begin{lstlisting}[language=C]
+int sqlite3_finalize(sqlite3_stmt *pStmt);
+\end{lstlisting}
+撤销准备好的SQL声明（sqlite3\_stmt），当数据库连接关闭的时候，所有准备好的SQL声明都必须
+被释放销毁。
+}
+\item{
+\begin{lstlisting}[language=C]
+int sqlite3_close(sqlite3*);
+\end{lstlisting}
+关闭之前通过sqlite3\_open()打开的数据库文件连接对象。
+}
+\item{
+\begin{lstlisting}[language=C]
+int sqlite3_exec(
+  sqlite3*,
+  const char *sql,
+  int (*callback)(void*,int,char**,char**),
+  void *,
+  char **errmsg
+);
+\end{lstlisting}
+编译和执行多条SQL语句，将查询的结果返回给回调函数，如果执行错误，将错误记录到errmsg。
+}
+\end{enumerate}
 
 \section{PyQT4}
-PyQT是一个生成图形应用程序的工具包。是python语言和成功的Qt库的绑定。Qt库是这个世界上最强大的库之一，PyQT作为一组python的模块来实现。它包含了超过300个类，将近6000个函数和方法。它是一个多平台的工具包，可以在所有的主流操作系统上运行，包括Unic，Windows和Mac。PyQT采用双协议，开发者可以在GPL和商业授权中选择。以前的版本中，GPL版本只存在于Unic上。从PyQT4开始，GPL协议支持所有的平台。QtCore模块包含了核心的非图形功能，这个模块被用来实现时间，文件和目录，不同的数据格式，流，互联网地址，mime类型，线程或进程等等。QtGui模块包含了图形组件和类的描述，包括例如按钮，窗口，状态栏，滑块，位图，颜色，字体等等。
+PyQT是一个生成图形应用程序的工具包。是python语言和成功的Qt库的绑定。Qt库是这个世界上最强大的库之一，PyQT作为一组python的模块来实现。它包含了超过300个类，将近6000个函数和方法。它是一个多平台的工具包，可以在所有的主流操作系统上运行，包括Unic，Windows和Mac。PyQT采用双协议，开发者可以在GPL和商业授权中选择。以前的版本中，GPL版本只存在于Unic上。从PyQT4开始，GPL协议支持所有的平台。QtCore模块包含了核心的非图形功能，这个模块被用来实现时间，文件和目录，不同的数据格式，流，互联网地址，mime类型，线程或进程等等。QtGui模块包含了图形组件和类的描述，包括例如按钮，窗口，状态栏，滑块，位图，颜色，字体等等[24]。
 
 QtCore模块包含了核心的非图形功能，这个模块被用来实现时间，文件和目录，不同的数据格式，流，互联网地址，mime类型，线程或进程等等。
 
@@ -165,183 +215,459 @@ QtNetwork模块包含了网络编程所需的类，这些类可以用来实现TC
 
 QtXml模块提供了处理xml文件的类，这个模块包含了SAX和DOM APIs的实现。
 
-QtSvg模块包含了显示SVG文件目录的类。Scalable Vector Graphics (SVG)是一种利用XML来描述二维图形和图形应用的的语言。
-
-QtOpenGL模块用来通过OpenGL库来渲染3D和2D图形，这个模块实现了Qt GUI库和OpenGL库的无缝集合。
-
 QtSql模块提供了处理数据库的类。
 
-\section{本章小结}
-本章以本系统开发的相关理论及技术为基础，介绍系统开发过程中需要了解和掌握的方法和技术，详细阐述了Redis，SQLite，PyQT4d等相关技术。
+
+%%% 第三章 数据的存储 %%%
+\chapter{数据的存储}
+\section{内部数据结构}
+本章主要介绍Redis的内部数据结构、内存映射数据结构以及一些与其相关的应用场景。
+Redis和其他很多key-value数据库的不同之处在于，Redis不仅支持简单的字符串键值对，它还提供了一系列数据结构类型值，比如列表、哈希、集合和有序集，并在这些数据结构类型上定义了一套强大的API。通过对不同类型的值进行操作，Redis可以很轻易地完成其他只支持字符串键值对的key-value数据库很难（或者无法）完成的任务。在Redis的内部，数据结构类型值由高效的数据结构和算法进行支持，并且在Redis自身的构建当中，也大量用到了这些数据结构。
+
+本节将对其使用的数据结构和算法进行简单的介绍，并介绍了这些数据结构和算法的应用场景。
+
+\subsection{动态字符串}
+Redis是一个“Key-Value”数据库， 数据库的值可以是字符串、集合、列表等多种类型的对象， 而数据库的键则总是字符串对象，其底层所使用的字符串对象是用sds（Simple Dynamic String）表示，其结构如下：
+\begin{lstlisting}[language=C]
+typedef char *sds;
+struct sdshdr {
+    int len;
+    int free;
+    char buf[];
+};
+\end{lstlisting}
+其中len表示已使用的长度，free表示剩余的长度，
+使用sds而不是char*的原因主要是：char*的功能单一， 抽象层次低，不能高效地支持一些Redis常用的操作（比如追加操作和长度计算操作）。
+除此之外，通过len属性，sdshdr可以实现复杂度为$O(1)$的长度计算操作。
+另一方面，通过对buf分配一些额外的空间，并使用free记录未使用空间的大小，sdshdr可以让执行追加操作所需的内存重分配次数大大减少。
 
 
-\chapter{需求分析}
-% 3.1	系统简介	7
-% 3.1.1	项目类别和申报类型	7
-% 3.1.2	系统使用对象	7
-% 3.1.3	功能概述	7
-% 3.2	系统的整体框架	7
-% 3.3	本章小结	8
+\subsection{双端列表}
+双端链表作为一种通用的数据结构，在Redis内部使用得非常多：它既是Redis列表结构的底层实现之一，还被大量Redis模块所使用，用于构建Redis的其他功能，由于双端列表的设计实现比较常见，下文简单的阐述其结构如下：
+\begin{lstlisting}[language=C]
+typedef struct listNode {
+    struct listNode *prev;
+    struct listNode *next;
+    void *value;
+} listNode;
 
-\section{系统简介}
-由于Redis本身Key-Value的特性，它可以在很多Web应用场景上发挥巨大的功效，下文列举了几个常见的应用场景：
+typedef struct list {
+    listNode *head;
+    listNode *tail;
+    unsigned long len;
+    void *(*dup)(void *ptr);
+    void (*free)(void *ptr);
+    int (*match)(void *ptr, void *key);
+} list;
+\end{lstlisting}
+对于一个链表节点listNode，它包括了前驱和后驱节点以及节点值的指针，而链表本身为包括了列表头尾节点的指针、列表长度以及三个关键函数的指针（节点值的拷贝、释放、比较函数）。
+这三个函数指针设置的目的在于对于不同类型的值，有时候需要不同的函数来处理这些值，因此，这三个函数分别用来处理值的复制、释放和比较。
+
+举个例子：当删除一个listNode时，如果包含这个节点的list的list->free函数不为空，那么删除函数就会先调用list->free(listNode->value)清空节点的值，再执行余下的删除操作（比如说，释放节点）。
+
+综上所述，双端列表的优点可以归结为以下几点：
+
 \begin{enumerate}[label=（\arabic*）]
-\item{在主页中显示最新的项目列表。
-由于Redis使用的是常驻内存的缓存，速度非常快。LPUSH用来插入一个内容ID，作为关键字存储在列表头部。LTRIM用来限制列表中的项目数最多为5000。如果用户需要的检索的数据量超越这个缓存容量，这时才需要把请求发送到数据库。}
-
-\item{排行榜及相关问题。
-排行榜按照得分进行排序，ZADD命令可以直接实现这个功能，而ZREVRANGE命令可以用来按照得分来获取前N名的用户，ZRANK可以用来获取用户排名}
-
-\item{按照用户投票和时间排序。
-这就像Reddit的排行榜，得分会随着时间变化。LPUSH和LTRIM命令结合运用，把文章添加到一个列表中。一项后台任务用来获取列表，并重新计算列表的排序，ZADD命令用来按照新的顺序填充生成列表。列表可以实现非常快速的检索，即使是负载很重的站点。}
-
-\item{计数。进行各种数据统计的用途是非常广泛的，比如想知道什么时候封锁一个IP地址。INCRBY命令让这些变得很容易，通过原子递增保持计数；GETSET用来重置计数器；过期属性用来确认一个关键字什么时候应该删除。}
-
-\item{队列。在当前的编程中队列随处可见。除了push和pop类型的命令之外，Redis还有阻塞队列的命令，能够让一个程序在执行时被另一个程序添加到队列。你也可以做些更有趣的事情，比如一个旋转更新的RSS feed队列。}
-
-\item{缓存。
-Redis缓存使用的方式与memcached相同。
-网络应用不能无休止地进行模型的战争，看看这些Redis的原语命令，尽管简单但功能强大，把它们加以组合，所能完成的就更无法想象。当然，你可以专门编写代码来完成所有这些操作，但Redis实现起来显然更为轻松。}
+\item{节点带有前驱和后继指针，访问前驱节点和后继节点的复杂度为O(1)，并且对链表的迭代可以在从表头到表尾和从表尾到表头两个方向进行。}
+\item{链表带有指向表头和表尾的指针，因此对表头和表尾进行处理的复杂度为O(1)。}
+\item{链表带有记录节点数量的属性，所以可以在O(1)复杂度内返回链表的节点数量（长度）。}
 \end{enumerate}
 
-但是，Redis并非是传统的关系型数据库，无法支持SQL语句解析，所以本系统在这基础上配合采用了SQLite的接口，同时为Redis新增加了一个基于SQLite的“sql”命令。至此，可以通过sql命令来进行数据库的表操作，表中的所有数据完全存储在内存中，此外，根据Redis.conf的配置，可以设置表中数据库每次保存到硬盘的间隔，这样做可以保证数据的正确性，防止出现可能的断电宕机使数据丢失的情况。
+\subsection{字典}
+字典，也就是我们常说的map，是一种抽象数据结构， 由系列键值对组成，各个键值对的键各不相同，程序可以将新的键值对添加到字典中，或者基于键进行查找、更新或删除等操作。下文简单的介绍了字典的结构：
+\begin{lstlisting}[language=C]
+typedef struct dictht {
+    dictEntry **table;
+    unsigned long size;
+    unsigned long sizemask;
+    unsigned long used;
+} dictht;
 
-综上所述，内存数据库应用系统可以同时通过Redis的命令来直接操作“Key-Value”的数据集，或者通过附加的“sql”命令来操作传统的关系型数据库中的表集合，两者都放在内存中。
+typedef struct dict {
+    dictht ht[2];
+    int rehashidx;
+    //...
+} dict;
+\end{lstlisting}
+一个字典由两个hash表组成，0号hash表（ht[0]）是字典主要使用的hash表， 而1号hash表则只有在Server对0号hash表进行rehash时才使用，rehashidx表示rehash进度的标志。而rehash的作用是为了
+维护hash表的效率，例如：当hash表的碰撞率很高并且table[i]挂着很长一个链表时，查找效率会大大下降，这个时候可以通过rehash对hash表进行扩容的操作。
 
-\section{系统框架}
-整个系统的框架主要分两部分：Server（服务器端）和Client（客户端），两者通过套接字来进行交互，数据的格式必须满足Redis的协议：
+字典在Redis中的应用广泛，主要用途有以下两个：
+
+1. 实现数据库键空间。Redis是一个键值对数据库，数据库中的键值对就由字典保存，当添加一个键值对到数据库时（不论键值对是什么类型）， 程序就将该键值对添加到这个字典，同理，当用户从数据库中删除一个键值对时， 程序就会将这个键值对从字典中删除。
+
+2. 用作Hash类型键的其中一种底层实现。
+
+\subsection{跳跃表}
+跳跃表的介绍这里就不再详细的阐述了，很多和数据结构有关的书上都有相关的介绍， 这种数据结构以有序的方式在层次化的链表中保存元素，它的效率可以和平衡树媲美（ 查找、删除、添加等操作都可以在对数期望时间下完成），并且比起平衡树来说，跳跃表的实现要简单直观得多。
+下面对Redis中使用的跳跃表结构进行简单的介绍：
+\begin{lstlisting}[language=C]
+typedef struct zskiplistNode {
+    robj *obj;
+    double score;
+    struct zskiplistNode *backward;
+    struct zskiplistLevel {
+        struct zskiplistNode *forward;
+        unsigned int span;
+    } level[];
+} zskiplistNode;
+
+typedef struct zskiplist {
+    struct zskiplistNode *header, *tail;
+    unsigned long length;
+    int level;
+} zskiplist;
+\end{lstlisting}
+相比于传统的跳跃表的节点，redis增加了一个前驱节点的指针，这样的好处使得对跳跃表进行反向遍历。
+对于跳跃表节点，包含了对象的指针（obj）和score，以及跳跃层，每一个跳跃层包括了跳跃到的下一个节点以及这次跳跃所跨越的节点数。对于跳跃表本身，和双端列表一样，维护头尾指针，节点数量，还有每个节点的跳跃层的数量。
+
+传统的跳跃表有个特点：不能包含相同的score。为了满足自身的功能，跳跃表可以允许重复相同的score值。那么这样一来，在进行节点的对比操作的时候，如果score值相同，单靠score值无法判断一个元素的身份，需要连obj都一并检查才行。
+
+和字典、链表或者sds这种大量使用的数据结构不同，跳跃表在Redis的唯一作用，就是实现有序集数据类型。
+跳跃表将指向有序集的score值和obj指针作为元素，并以score值为索引，对有序集元素进行排序。这个功能的实用场景很多，例如上文提及过的排行榜排序功能。
+
+
+\section{内存映射数据结构}
+上文阐述了内部数据结构和算法以及实际应用场景，虽然这些内部数据结构非常强大， 但是创建一系列完整的数据结构本身也是一件相当耗费内存的工作，这就会产生一个问题：当一个对象包含的元素数量并不多，或者元素本身的体积并不大时，使用代价高昂的内部数据结构并不是最好的办法。
+
+所以，为了解决这种问题，在这种情况下，Redis会使用内存映射数据结构来代替内部数据结构。内存映射数据结构是一系列经过特殊编码的字节序列，创建它们所消耗的内存通常比作用类似的内部数据结构要少得多，可以为用户节省大量的内存。
+
+但是，内存映射数据结构的编码和操作方式要比内部数据结构要复杂得多，所以内存映射数据结构所占用的处理 时间会比作用类似的内部数据结构要多，简而言之，内存映射数据结构是一种牺牲时间换取空间的做法。下文将对两种内存映射数据结构进行介绍。
+
+\subsection{整数集合}
+整数集合以数组储存的方式有序、无重复地保存多个整数值，它会根据元素的值，自动选择该用什么长度的整数类型
+（int16\_t、int32\_t、int64\_t）来保存元素。
+举个例子，如果在一个整数集合里面，最大的整数可以用int16\_t
+类型来保存，那么这个整数集合的所有元素都应该以int16\_t类型来保存。
+
+这样也会产生出一个问题：如果有一个新元素要加入到这个intset，并且这个元素不能用int16\_t类型来保存（int\_32t或者int64\_t），那么这个intset就会自动进行扩展，也就是先将集合中现有的所有元素从int16\_t类型转换为相应的类型，接着再将新元素加入到集合中。
+根据需要，整数集合可以自动从int16\_t扩展到int32\_t或int64\_t，或者从int32\_t扩展到int64\_t。
+
+整数集合的定义结构如下：
+\begin{lstlisting}[language=C]
+typedef struct intset {
+    uint32_t encoding;
+    uint32_t length;
+    int8_t contents[];
+} intset;
+\end{lstlisting}
+encoding的值可以是以下三个常量的其中一个：
+\begin{lstlisting}[language=C]
+#define INTSET_ENC_INT16 (sizeof(int16_t))
+#define INTSET_ENC_INT32 (sizeof(int32_t))
+#define INTSET_ENC_INT64 (sizeof(int64_t))
+\end{lstlisting}
+contents数组是实际保存整数的地方，数组中的元素有两个特性：没有重复元素；元素在数组中从小到大排列；这样一来，程序可以使用二分查找算法来实现查找操作，复杂度为O(lgN)。现在，举个实际的例子，如果整数集合现在保存了{1,3,7}，最大是7，能用int16\_t来保存，那么contents的结构如下所示：
+
 \begin{verbatim}
-*<参数数量>\r\n$<第1个参数字节数>\r\n<参数数据>\r\n...$<第N个参数字节数>\r\n<参数数据>\r\n
-例如：*3\r\n$3\r\nSET\r\n$5\r\nmykey\r\n$7\r\nmyvalue\r\n
+value   |  1  |  3  |  7  |
+bit     0    15    31    47
+\end{verbatim}
+如果现在添加了一个新整数999999，int16\_t必须扩展到int32\_t，所以扩展之后的contents的结构如下所示：
+\begin{verbatim}
+value   |    1     |    3     |    7    |  999999 |
+bit     0   15    31   47     63        95       127
 \end{verbatim}
 
-%%% 架构图 %%%
-整个系统的框架图如图~\ref{fig:Network}~所示。
+\subsection{压缩列表}
+压缩列表（Ziplist）是由一系列特殊编码的内存块构成的列表，一个压缩列表可以包含多个节点（entry）， 每个节点可以保存一个长度受限的字符数组（不以\\0结尾的char数组）或者整数。
+更具体的说，压缩列表其实是用一个字符串来实现的双向链表结构，这样做的目的可以减少双向链表的存储空间，主要是节省了链表指针的存储，如果存储前驱和后驱节点的指针一共需要8个字节，而转化成存储前驱节点的长度和当前结点长度在大多数情况下可以节省很多空间。
+
+但是，这样设计的储存方式也有不足：如果每次向链表增加元素，那么都需要重新分配内存的工作。压缩列表节点的基本结构如下文所示：
+\begin{verbatim}
+|----------------|--------|------|-------|
+|pre_entry_length|encoding|length|content|
+|----------------|--------|------|-------|
+\end{verbatim}
+其中各个节点域表示的含义如下表~\ref{tab:zlentry}~所示：
+
+\begin{table}[htbp]
+\caption{压缩列表节点}\label{tab:zlentry}
+\vspace{0.5em}{\wuhao
+\begin{tabularx}{\textwidth}{lX}
+\toprule[1.5pt]
+域 & 含义\\\midrule[1pt]
+pre\_entry\_length & 前一个节点的长度（可以用来访问前一个节点）。如果前一节点的长度小于254字节，那么只使用一个字节保存。反之，那么将第1个字节的值设为254，然后用接下来的4个字节保存实际长度。\\ \hline
+encoding & 占两个bit，00、01和10说明content表示的是字符数组，
+11说明content表示的是整数数组。\\ \hline
+length & length所占的bit和encoding有关。00：encoding和length共占1个byte，即lenth占6个bit；01：encoding和length共占2个byte，即lenth占14个bit；10：encoding和length共占5个byte，其中第1个byte剩余6个bit不记，即lenth占32个bit\\ \hline
+content & 保存着节点的内容，它的类型和长度由encoding和length决定。\\\bottomrule[1.5pt]
+\end{tabularx}}
+\vspace{\baselineskip}
+\end{table}
+
+压缩列表本身是由列表头，节点，列表末尾表示符组成的，其中列表头又由列表总字节数（zlbytes），末节点偏移量（zltail）和节点数量（zllen）组成，如下图所示：
+\begin{verbatim}
+ 4bytes   4bytes  2bytes                       1byte
+|--------|-------|------|-------|-----|-------|------|
+|zlbytes |zltail |zllen |entry1 | ... |entryN |zlend |
+|--------|-------|------|-------|-----|-------|------|
+\end{verbatim}
+其中，计算zltail偏移所得到的位置为entryN的首地址，由于每个节点内部包含了前一个节点的长度，所以这两者一起实现了类似双端列表中从后向前遍历的功能。最后的zlend用来标识列表的结尾，为固定值 1111 1111。
+
+综上所述，类似整数集合，压缩列表也是一个牺牲时间换取空间的做法，当添加和删除ziplist节点时候，可能会引起连锁更新，因此，添加和删除操作的最坏复杂度为$O(N^{2})$。
+
+
+%%% 第四章  数据的持久化 %%% 
+\chapter{数据的持久化}
+什么是持久化，简单来讲就是将数据放到断电后数据不会丢失的设备中，也就是我们通常理解的硬盘上。
+在运行情况下，Redis以数据结构的形式将数据维持在内存中，为了让这些数据在Redis重启之后仍然可用，需要经常将内存中的数据同步到磁盘来保证持久化。这里有两种持久化模式，RDB（保存数据库快照）和AOF（记录写命令）。
+
+\section{RDB}
+RDB是默认的持久化方式，将内存中数据以快照的方式写入到二进制文件中，默认的文件名为dump.rdb。在Server运行时，RDB程序将当前内存中的数据库快照保存到磁盘文件中，在Redis重启动时，RDB程序可以通过载入RDB文件来还原数据库的状态。RDB最核心的是rdbSave和rdbLoad两个函数，前者用于生成RDB文件到磁盘，而后者则用于将RDB文件中的数据重新载入到内存中，如下图~\ref{fig:RDB}~所示：
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{Network}
-\caption{系统框架图}\label{fig:Network}
+\includegraphics[width=0.6\textwidth]{RDB}
+\caption{RDB核心函数}\label{fig:RDB}
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
 
-\subsection{服务器端}
-这里的服务器端就是Redis本身的Server， 除了维持服务器状态之外， 最重要的就是将Redis的各个功能模块组合起来。
-简单而言，服务器端就是整个系统的“心脏”，它维护着各个模块，保证每个模块稳定健康的运行，如图~\ref{fig:Redis-Server}~所示。
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{Redis-Server}
-\caption{Redis Server架构图}\label{fig:Redis-Server}
-\vspace{\baselineskip} %表示图与正文空一行
-\end{figure}
+\subsection{保存}
+rdbSave负责将内存中的数据库数据以.rdb的格式保存到磁盘中。在保存RDB文件期间，
+主进程会被阻塞，直到保存完成为止。SAVE和BGSAVE两个命令都会调用rdbSave函数，但它们调用的方式各有不同：
 
-\subsection{客户端}
-客户端的作用就是与服务器端进行交互，通过指令来操作控制服务器端。两者之间的交互过程如下：客户端向服务器发送命令，服务器接受命令然后将命令传给命令执行器，执行器执行给定命令的实现函数，执行完成之后，将结果保存在缓存，最后回传给客户端。同时，服务器端可以接受来自多个客户端发来的命令请求。
+1. SAVE直接调用rdbSave，阻塞Redis主进程，直到保存完成。在主进程阻塞期间，服务器不能处理客户端的任何请求。
 
-\section{本章小结}
-本章对内存数据库应用系统需求进行了充分的分析，明确了系统框架、大致功能结构等问题，为后续系统设计打下了基础。
+2. BGSAVE则fork出一个子进程，子进程负责调用rdbSave，并在保存完成之后向主进程发送信号，通知保存已完成。
+因为rdbSave在子进程被调用，所以Server在BGSAVE执行期间仍然可以继续处理客户端的请求。
 
+下图的伪代码来描述这两个命令：
+\begin{lstlisting}[language=Python]
+def SAVE():
+    rdbSave()
 
-%%% 第四章 项目中期检查系统概要设计	%%% 
-\chapter{概要设计}
-% 4.1	系统业务流程	9
-% 4.1.1	业务流程	9
-% 4.2	系统功能结构	10
-% 4.3	系统架构设计	11
-% 4.4	系统数据库设计	11
-% 4.5	本章小结	15
-\section{系统业务流程}
-\subsection{业务流程}
-从客户端发送命令请求， 到命令被服务器处理、并将结果返回客户端， 整个过程有以下步骤：
-\begin{enumerate}[label=（\arabic*）]
-\item{客户端通过套接字向服务器传送命令协议数据。}
-\item{服务器通过读事件来处理传入数据，并将数据保存在客户端对应redisClient结构的查询缓存中。}
-\item{根据客户端查询缓存中的内容，程序从命令表中查找相应命令的实现函数。}
-\item{程序执行命令的实现函数，并将命令的执行结果保存到客户端redisClient结构的回复缓存中，然后为该客户端关联写事件。}
-\item{当客户端写事件就绪时，将回复缓存中的命令结果传回给客户端。}
+def BGSAVE():
+    pid = fork()
+    if pid == 0:
+        rdbSave()
+    elif pid > 0:
+        handle_request()
+    else:
+        # pid == -1
+        handle_fork_error()
+\end{lstlisting}
+
+\subsection{载入}
+当Redis服务器启动时，rdbLoad()就会被执行，它读取RDB文件，并将文件中的数据库数据载入到内存中。
+在载入期间，请求命令一律返回错误。等到载入完成之后，服务器才会开始正常处理所有命令。
+此外，因为AOF（下文会做阐述）文件的保存频率通常要高于RDB文件保存的频率，所以一般来说，AOF文件中的数据会比RDB文件中的数据要新。因此，如果服务器在启动时，配置文件里说明打开了AOF功能，那么程序优先使用AOF文件来还原数据。只有在AOF功能未打开的情况下，Redis才会使用RDB文件来还原数据。
+
+\subsection{RDB文件结构}
+RDB文件的结构也采用了编码的形式，并且相对于整数集合或者压缩列表更加复杂。
+RDB文件的整体格式如下：
+\begin{verbatim}
+|-----|-------|---------|---------------|---|---------|
+|REDIS|VERSION|SELECT-DB|KEY-VALUE-PAIRS|EOF|CHECK-SUM|
+|-----|-------|---------|---------------|---|---------|
+\end{verbatim}
+相关域的定义如~表\ref{tab:rdb}~所示：
+\begin{table}[htbp]
+\caption{RDB文件结构}\label{tab:rdb}
+\vspace{0.5em}{\wuhao
+\begin{tabularx}{\textwidth}{lX}
+\toprule[1.5pt]
+域 & 含义\\\midrule[1pt]
+REDIS & 文件前5 bytes，固定为“REDIS”，用来标识该文件为RDB文件。\\ \hline
+RDB-VERSION & RDB文件版本号。对RDB文件进行版本分类的原因是不同的版本可能数据编码方式不同，必须通过文件版本号来确定数据的读入方式。\\ \hline
+SELECT-DB & 数据库编号。\\ \hline
+KEY-VALUE-PAIRS & 数据库键值对集合（下文中做详细说明）。\\ \hline
+EOF & 标记结尾，此处的结尾指的是数据库结尾，而非文件结尾，为固定值255。\\ \hline
+CHECK-SUM & 整个RDB文件内容的校验和，为一个uint\_64t类型的整数。\\\bottomrule[1.5pt]
+\end{tabularx}}
+\vspace{\baselineskip}
+\end{table}
+
+从上文可以看出，最重要也是编码最复杂的部分即为数据库中键值对的编码方式，一个键值对的编码格式如下：
+\begin{verbatim}
+|--------------------|-------------|---|-----|
+|OPTIONAL-EXPIRE-TIME|TYPE-OF-VALUE|KEY|VALUE|
+|--------------------|-------------|---|-----|
+\end{verbatim}
+OPTIONAL-EXPIRE-TIME域是可选的，如果键没有设置过期时间，那么这个域就不会出现；反之，
+那么它记录着键的过期时间，在当前版本的RDB中，过期时间是一个以毫秒为单位的UNIX时间戳。
+
+TYPE-OF-VALUE域记录着VALUE域的值所使用的编码，
+根据这个域的指示，程序会使用不同的方式来保存和读取VALUE的值。
+
+KEY域保存着键，格式和REDIS\_ENCODING\_RAW编码的字符串对象一样（见下文）。
+
+由于VALUE保存的数据类型很多，有String，List，Set，Sorted Set，Hash等，所以VALUE域保存的格式有跟多种，下文按照这个顺序来阐述具体的编码格式：
+\begin{enumerate}[label=\arabic*.]
+
+%%% REDIS_ENCODING_INT 编码的 REDIS_STRING 类型对象：
+\item{
+String（通过REDIS\_ENCODING\_INT编码）\\
+在这种情况下，String能直接表示成8位、16位或者32位的有符号整数，例如“9”可以直接用0000 1001来保存，如果超过了int32\_t的大小，则退化成字符序列的形式保存。一个字符序列结构如下：
+\begin{verbatim}
+|---|-------|
+|LEN|CONTENT|
+|---|-------|
+\end{verbatim}
+其中，LEN保存了以byte为单位的字符长度，CONTENT域保存了字符内容。
+当进行载入时，先读入LEN，创建一个长度等于LEN的字符串对象，然后再从文件中读取LEN字节数据，并将这些数据设置为字符串对象的值。
+}
+
+%%% REDIS_ENCODING_RAW 编码的 REDIS_STRING 类型值有三种保存方式：
+\item{
+String（通过REDIS\_ENCODING\_RAW编码）\\
+如果String不能被表示成整数，那么它就按正常的字符串序列的方式进行保存，方式和上文String（通过REDIS\_ENCODING\_INT编码）中的方法一样，采用“LEN + CONTENT”的结构进行存储。
+
+但是，如果Server配置文件里说明了使用“LZF压缩算法”的话，存储格式就变成如下所示：
+\begin{verbatim}
+|--------|--------------|------------------|
+|LZF-FLAG|COMPRESSED-LEN|COMPRESSED-CONTENT|
+|--------|--------------|------------------|
+最前面的LZF-FLAG标示符说明这是经过LZF算法压缩过的字符串，COMPRESSED-LEN是该字符串的字节长度，COMPRESSED-CONTENT是被压缩后的字符串数据。
+\end{verbatim}
+}
+
+%%% REDIS_ENCODING_LINKEDLIST 编码的 REDIS_LIST 类型
+\item{
+LIST（通过REDIS\_ENCODING\_LINKEDLIST编码）\\
+这个通过LINKEDLIST的形式来保存一个LIST，结构如下：
+\begin{verbatim}
+|---------|------------|------------|---|------------|
+|LIST-SIZE|NODE-VALUE-1|NODE-VALUE-2|...|NODE-VALUE-N|
+|---------|------------|------------|---|------------|
+\end{verbatim}
+其中LIST-SIZE保存链表节点数量，之后节点值的保存方式和字符串的保存方式一样。当进行载入时，先读取节点的数量LIST-SIZE，然后创建一个新的链表，最后一直执行“载入结点，添加到链表”的步骤。
+}
+
+%%% REDIS_ENCODING_HT 编码的 REDIS_SET 类型值保存为以下结构：
+\item{
+Set（通过REDIS\_ENCODING\_HT编码）\\
+Set的表示结构和上文的List表示结构基本一致，如下所示：
+\begin{verbatim}
+|--------|---------|---------|---|---------|
+|SET-SIZE|ELEMENT-1|ELEMENT-2|...|ELEMENT-N|
+|--------|---------|---------|---|---------|
+\end{verbatim}
+其中SET-SIZE记录了集合元素的数量，之后元素值的保存方式和字符串的保存方式一样。
+当进行载入时，先读入集合元素的数量SET-SIZE，然后创建一个新的Hash表，最后一直执行“载入字符串，添加到Hash表”的步骤。
+}
+
+%%% REDIS_ENCODING_SKIPLIST 编码的 REDIS_ZSET 类型值保存为以下结构：
+\item{
+Sorted Set（通过REDIS\_ENCODING\_SKIPLIST编码）\\
+Sorted Set的表示结构和上文的List表示结构基本一致，其中一个节点分成了成员和分数，如下所示：
+\begin{verbatim}
+|---------|--------|-------|---|--------|-------|
+|ZSET-SIZE|MEMBER-1|SCORE-1|...|MEMBER-N|SCORE-N|
+|---------|--------|-------|---|--------|-------|
+\end{verbatim}
+其中ZSET-SIZE记录了集合元素的数量。
+当进行载入时，先读取有序集元素数量，创建一个新的Skiplist，最后一直执行“载入member（字符串），载入score（字符串），添加到新的Skiplist”的步骤。
+}
+
+%%% REDIS_ENCODING_HT 编码的 REDIS_HASH 类型值保存为以下结构：
+\item{
+Hash（通过REDIS\_ENCODING\_HT编码）\\
+Hash的表示结构和上文的List表示结构基本一致，其中一个节点分成了键和值，如下所示：
+\begin{verbatim}
+|---------|-----|-------|---|-----|-------|
+|HASH-SIZE|KEY-1|VALUE-1|...|KEY-N|VALUE-N|
+|---------|-----|-------|---|-----|-------|
+\end{verbatim}
+其中HASH-SIZE记录了Hash表键值对的数量。
+当进行载入时，先读取Hash表大小，创建一个新的Hash表，最后一直执行“载入key（字符串），载入value（字符串），添加到新的Hash表”的步骤。
+}
+
+%%% REDIS_LIST 类型、 REDIS_HASH 类型和 REDIS_ZSET 类型都使用了 REDIS_ENCODING_ZIPLIST 编码
+\item{
+List、Hash、Zset（通过REDIS\_ENCODING\_ZIPLIST编码）\\
+List、Hash、Zset可以通过压缩列表（ziplist）来保存，保存方式如下：
+\begin{verbatim}
+|---|-------|
+|LEN|ZIPLIST|
+|---|-------|
+\end{verbatim}
+当进行载入时，先读入压缩列表长度LEN，再根据LEN读入数据，最后将数据还原成一个ziplist。
+}
+
+%%% REDIS_ENCODING_INTSET 编码的 REDIS_SET 类型值保存为以下结构：
+\item{
+Set（通过REDIS\_ENCODING\_INTSET编码）\\
+当Set可以用intset来保存时，保存方式如下：
+\begin{verbatim}
+|---|------|
+|LEN|INTSET|
+|---|------|
+\end{verbatim}
+当进行载入时，先读入压缩列表长度LEN，再根据LEN读入数据，最后将数据还原成一个intset。
+}
 \end{enumerate}
 
-整个流程图如图~\ref{fig:Flow-Chart}~所示。
+
+\section{AOF}
+上文介绍了快照（RDB）形式的持久化方式，与之想比的AOF则以协议文本的方式，将所有对数据库进行过写入的命令（及其参数）记录到AOF文件，以此达到记录数据库状态的目的。
+AOF比RDB有更好的持久化性，原因在于使用AOF持久化时，Server会将收到的写命令追加到文件中（默认是appendonly.aof）。当redis重启时会通过重新执行文件中保存的写命令来在内存中重建整个数据库的内容。但是，由于操作系统会在内核中缓存修改，所以那些写命令可能不是立即写到硬盘上。这样AOF方式的持久化也还是有可能会丢失部分对数据的修改。整个AOF流程如图~\ref{fig:AOF}~所示：
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth]{Flow-Chart}
-\caption{Client请求处理图}\label{fig:Flow-Chart}
+\includegraphics[width=0.9\textwidth]{AOF}
+\caption{AOF持久化流程}\label{fig:AOF}
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
 
-%%% TODO 业务流程图
+服务器将命令同步到AOF文件的整个过程可以分为三个阶段：
+\begin{enumerate}[label=\arabic*.]
+\item{命令传输：服务器将执行完的命令、命令的参数等信息发送到AOF程序中。}
+\item{追加缓存：AOF程序根据接收到的命令数据，将命令转换为Redis协议（见下文）的格式，
+然后将协议内容追加到服务器的AOF缓存中。}
+\item{写入和保存：AOF缓存中的内容被写入到AOF文件末尾，如果设定的AOF保存条件被满足的话，fsync()或者fdatasync()会被调用，将写入的内容真正地保存到磁盘中。}
+\end{enumerate}
 
-服务器启动之后，它便在6379端口（默认端口）监听来自客户端的请求，此时客户端可以连接到某个服务器，然后发送指令请求。如果客户端连接对应的服务器未启动，那客户端发送的命令的请求都会返回错误。
+\subsection{命令传输}
+当一个客户端需要执行命令时，它通过网络连接，将协议文本发送给服务器。Redis的协议标准如下：
+\begin{verbatim}
+*<参数数量>\r\n$<第1个参数字节数>\r\n<参数数据>\r\n...$<第N个参数字节数>\r\n<参数数据>\r\n
+\end{verbatim}
+比如说，要执行命令“SET KEY VALUE”，客户端将向服务器发送文本\verb|*3\r\n$3\r\nSET\r\n$3\r\nKEY\r\n$5\r\nVALUE\r\n|。服务器在接到客户端的请求之后，
+它会根据协议文本的内容，选择适当的命令函数，每当命令函数成功执行之后，命令参数都会被传播到AOF程序。
 
-\section{系统功能结构}
-%%% TODO 系统功能图 %%%
-本系统功能主要分两部分：Redis元命令部分，SQL部分，系统的功能结构如图~\ref{fig:Command}~所示。
+\subsection{追加缓存}
+当命令被传输到AOF程序之后，程序会根据命令以及命令的参数，将命令从字符串对象转换回原来的协议文本。
+协议文本生成之后，它会被追加到服务器管理的缓存的末尾。
+
+\subsection{写入和保存}
+每当服务器常规任务函数被执行、或者事件处理器被执行时，aof.c/flushAppendOnlyFile函数都会被调用，
+这个函数执行以下两个工作：
+
+WRITE：根据条件，将aof\_buf中的缓存写入到AOF文件。
+
+SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬盘中。
+
+两个步骤都需要根据一定的条件来执行，而这些条件由AOF所使用的保存模式来决定，具体条件由配置文件中appendfsync的值有关。
+
+\section{AOF重写}
+在AOF模式下，每一条写命令都生成一条日志记录，那么这个AOF文件会越来越大。所以必须在某些条件下对AOF文件进行缩小体积的操作。
+因此，Redis提供了AOF重写的功能。其功能就是重新生成一份AOF文件，新的AOF文件中一条记录的操作只会有一次（最新值），
+而不像一份老文件那样，可能记录了对同一个值的多次操作。其生成过程和RDB类似，也是fork一个进程，直接遍历所有数据，写入新的AOF临时文件。在写入新文件的过程中，所有的写操作日志还是会写到原来老的AOF文件中，同时还会记录在内存缓冲区中。当重完操作完成后，会将所有缓冲区中的日志一次性写入到临时文件中。然后调用原子性的rename命令用新的AOF文件取代老的AOF文件。
+
+结合上文提到的RDB模式，两者操作都是顺序I/O操作，性能都很高。而同时在通过RDB文件或者AOF文件进行数据库恢复的时候，也是顺序的读取数据加载到内存中。所以也不会造成磁盘的随机读，实现高效率的恢复方式。
+
+
+%%% 第五章  系统实现  %%%
+\chapter{系统实现}
+\section{相关功能}
+本内存数据库系统功能主要分两部分：Redis原命令部分，SQL部分，系统的功能结构如图~\ref{fig:Command}~所示。
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{Command}
 \caption{系统功能结构图}\label{fig:Command}
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
+系统根据用户输入的命令语句来选择具体的模块来执行。
 
-\section{系统架构设计}
-%%% TODO 系统的架构图%%%
-
-系统的架构设计如图~\ref{fig:System}~所示。
+\section{主界面}
+本内存数据库系统界面采用PyQT4开发，包含了简单的执行命令，获得执行结果等功能，界面截图如下：
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{System}
-\caption{系统的架构图}\label{fig:System}
+\includegraphics[width=0.9\textwidth]{GUI}
+\caption{系统界面截图}\label{fig:GUI}
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
 
-\section{本章小结}
-本章主要对内存数据库系统进行了概要设计。首先，对本系统进行了详细的阐述并进行系统架构设计。然后，确定了系统的总体功能结构，概要描述了各个功能模块的详细要求。
-
-
-%%% 第五章 项目中期检查系统详细设计	 %%%
-% 5.1	项目开发规范	16
-% 5.1.1	系统目录规划	16
-% 5.1.2	命名规则	17
-% 5.2	系统功能模块详细设计	17
-% 5.3	系统性能优化设计	19
-% 5.4	本章小结	19
-\chapter{系统详细设计}
-\section{项目开发规范}
-开发规范在项目的开发过程中具有非常重要的作用，良好的开发规范可以提高软件开发质量，降低开发周期，增强代码的可重用性和易读性，使软件便于维护。
-
-\subsection{系统目录规划}
-%%% TODO 系统目录规划表 %%%
-系统的目录规划表主要分两个部分：Redis部分和GUI界面部分，如表~\ref{tab:redis-files}~和表~\ref{tab:GUI-files}~所示。
-
-\begin{table}[H]
-\centering
-\caption{系统目录规划表（Redis部分）}\label{tab:redis-files}
-\vspace{0.5em}{\centering\wuhao
-\begin{tabular}{|c|c|}
-\toprule[1.5pt]
-目录 & 名称及说明\\
-\midrule[1pt]
-表中数据(1,1) & 表中数据(1,2)\\
-\bottomrule[1.5pt]
-\end{tabular}}
-\vspace{\baselineskip}
-\end{table}
-
-\begin{table}[H]
-\centering
-\caption{系统目录规划表（GUI部分）}\label{tab:GUI-files}
-\vspace{0.5em}{\centering\wuhao
-\begin{tabular}{|c|c|}
-\toprule[1.5pt]
-目录 & 名称及说明\\
-\midrule[1pt]
-表中数据(1,1) & 表中数据(1,2)\\
-\bottomrule[1.5pt]
-\end{tabular}}
-\vspace{\baselineskip}
-\end{table}
-
-%%% TODO 选择器 %%%
-\section{系统功能模块详细设计}
+\section{系统架构}
 在上文中，图~\ref{fig:Command}~说明了主要的功能模块，包括SQL模块和Redis元命令模块，这两个模块的主要功能就是执
 行相关的命令，并返回相应的结果，但是两者的命令都是从同一数据源（GUI）获得的，必须通过“选择器”来确定一条命令是属于SQL模块还是Redis模块，具体设计流程如图~\ref{fig:Selector}~所示。
 \begin{figure}[H]
@@ -351,64 +677,87 @@ Redis缓存使用的方式与memcached相同。
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
 
-\section{性能优化设计}
-\begin{enumerate}[label=（\arabic*）]
-\item{根据系统不同需求，修改redis.config中的参数}
-\end{enumerate}
+% \section{文件夹目录}
+% %%% TODO 系统目录规划表 %%%
+% 系统的目录表主要分两个部分：Redis Server部分和GUI界面部分，具体结构如表~\ref{tab:files}~所示。
 
-\section{本章小结}
-本章在第三章、第四章的基础上对系统进行了详细设计。首先，在系统开发之前，对系统的开发规范，包括目录规划进行了规定。重点介绍系统功能模块的详细设计及其流程，紧接着对性能优化等方面进行了设计。
+% \begin{table}[H]
+% \centering
+% \caption{文件夹}\label{tab:files}
+% \vspace{0.5em}{\centering\wuhao
+% \begin{tabular}{|c|c|}
+% \toprule[1.5pt]
+% 目录 & 名称及说明\\
+% \midrule[1pt]
+% /tredis & Redis根目录\\
+% /tredis/src & Redis根目录\\
+% /tredis & Redis根目录\\
+% \bottomrule[1.5pt]
+% \end{tabular}}
+% \vspace{\baselineskip}
+% \end{table}
 
-%%% 第六章 项目中期检查系统实现	%%%
-\chapter{系统实现}
-% 6.1	系统界面实现	20
-% 6.2	系统框架整合实现	23
-% 6.3	系统功能模块实现	23
-% 6.4	本章小结	23
-
-\section{系统界面实现}
-本系统中所有的界面均采用PyQT4进行设计，如%%%TODO
-所示
-
-\section{系统框架整合实现}
-
-\section{系统功能整合实现}
-
-\section{本章小结}
-本章对系统实现中的核心技术进行了深入的介绍，包括了框架整合技术现实、系统功能模块实现，最后给出了系统实现的部分功能模块界面。
+% \begin{table}[H]
+% \centering
+% \caption{系统目录规划表（GUI部分）}\label{tab:GUI-files}
+% \vspace{0.5em}{\centering\wuhao
+% \begin{tabular}{|c|c|}
+% \toprule[1.5pt]
+% 目录 & 名称及说明\\
+% \midrule[1pt]
+% 表中数据(1,1) & 表中数据(1,2)\\
+% \bottomrule[1.5pt]
+% \end{tabular}}
+% \vspace{\baselineskip}
+% \end{table}
 
 
-%%% 第七章 系统测试	%%%
-\chapter{系统测试}
-% 7.1	系统测试	24
-% 7.1.1	数据正确性测试	24
-% 7.1.2	系统功能测试	24
-% 7.2	本章小结	24
-\section{系统测试}
-软件测试是软件开发整个生命周期中对软件质量进行有效控制的重要手段，是在规定的条件下对程序进行操作，以发现程序错误，衡量软件质量，并对其是否能满足设计要求进行评估的过程。实际的软件工程实践证明，让对软件思想有深刻理解的工程师进行软件测试，可以大幅度的提高软件质量。
+%%% 第六章 性能对比 %%%
+\chapter{性能对比}
+对于一个内存数据库系统而言，性能是非常重要的一个因素。为了测试本内存数据库系统的实际性能，将MySQL（5.5）作为参照数据库，通过一定量的读写操作，来对比两者在性能上的差异，具体结果如表~\ref{tab:redis-mysql}~所示：
 
-\subsection{正确性测试}
-正确性是指软件按照需求正确执行任务的能力，无疑是第一重要的软件质量属性。如果软件运行不正确，将会给用户造成不便甚至损失。技术评审和测试的第一关都是检查工作成果的正确性。
-正确性说起来容易做起来难。因为从“需求开发”到“系统设计”再到“实现”，任何一个环节出现差错都会降低正确性。机器不会主动欺骗人，软件运行出错通常都是人造成的，所以不要找借口埋怨机器有毛病。开发任何软件，开发者都要为“正确”两字竭尽全力。
+\begin{table}[H]
+\centering
+\caption{性能对比}\label{tab:redis-mysql}
+\vspace{0.5em}{\centering\wuhao
+\begin{tabular}{cccc}
+\toprule[1.5pt]
+ & 内存数据库（无索引） & MySQL & 内存数据库（索引）\\
+\midrule[1pt]
+写的条数 & 3294 & 3294 & 3294 \\
+写的时间 & 0.851782083511秒 & 2.95379686356秒 & 0.939613819122秒 \\
+写的速度 & 3867条/秒 & 1115条/秒 & 3505条/秒\\ \hline
 
-本系统通过随机添加删除查找数据的方式，将对应的结果集和MySQL 5.5进行对比，从而对系统的正确性进行测试。
+读的条数 & 10000 & 10000 & 10000\\
+读的时间 & 10.441368103秒 & 10.3408880234秒 & 5.75849199295秒 \\
+读的速度 & 957条/秒 & 967条/秒 & 1736条/秒 \\
 
-\subsection{性能测试}
-性能测试是对软件性能的评价。简单的说，软件性能衡量的是软件具有的响应及时度能力。因此，性能测试是采用测试手段对软件的响应及时性进行评价的一种方式。对数据库系统而言，命令的响应处理速度是一个很重要的关键点，所以本系统采用对数据库进行批量读写的操作来测试读写速度，下文通过同样的手段测试关系型数据库代表Mysql 5.5的性能，并与本系统作比较。
-%%% TODO %%%
+% line:[196] 2013-05-25 19:34:08,157 sql.py INFO mysql write:3294 times
+% line:[197] 2013-05-25 19:34:08,158 sql.py INFO mysql write:2.95379686356s
+% line:[198] 2013-05-25 19:34:08,158 sql.py INFO mysql read:10.3408880234s
 
-\section{性能对比} %%% 自己加的，与MySQL 5.5对比
+% line:[156] 2013-05-25 19:34:19,483 sql.py INFO redis witre:3294 times
+% line:[157] 2013-05-25 19:34:19,483 sql.py INFO redis witre:0.851782083511s
+% line:[158] 2013-05-25 19:34:19,484 sql.py INFO redis read:10.441368103s
 
-\section{本章小结}
-本章对系统进行测试，主要进行系统的数据正确性测试与性能测试。
+% line:[156] 2013-05-25 19:34:26,241 sql.py INFO redis witre:3294 times
+% line:[157] 2013-05-25 19:34:26,241 sql.py INFO redis witre:0.939613819122s
+% line:[158] 2013-05-25 19:34:26,241 sql.py INFO redis(With Index) read:5.75849199295s
+\bottomrule[1.5pt]
+\end{tabular}}
+\vspace{\baselineskip}
+\end{table}
 
-% 第八章 总结	25
-% 8.1 完成的工作	25
-% 8.2 存在的问题及下一步工作	25
+从表~\ref{tab:redis-mysql}~可以看出，性能的瓶颈在于是否进了索引。
+
+% 第七章 总结    25
 \chapter{总结}
 \section{完成的工作}
-
+实现了基于Redis和SQLite开发的内存数据库系统的方案，并开发了功能较为简单的GUI界面，然后对其性能（和MySQL 5.
+5）进行了对比测试。
 \section{存在的问题及下一步工作}
+存在的问题主要是GUI的功能不全，缺少其他比较重要的功能，例如文件树等。
+接下去的工作主要是完善GUI中相关的功能并做测试，其次继续深入Redis的源代码，了解其其他模块的相关功能，例如对象处理机制，事务，频道订阅与发布，消息的发送等。
 
 % \makeatother
 \backmatter

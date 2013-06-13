@@ -753,7 +753,15 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 \vspace{\baselineskip}
 \end{table}
 
-从表~\ref{tab:redis-mysql}~可以看出，性能的瓶颈在于是否进了索引。
+从表~\ref{tab:redis-mysql}~可以看出，本应用系统相对于MySQL有较高的读写性能。
+
+此外，为了进一步优化在SQLite方面的性能，可以采取以下的几个方式：
+\begin{enumerate}[label=\arabic*.]
+\item{使用事务：如果不使用事务，默认会对单个语句进行事务处理，会造成重新打开、写入和关闭日志文件，这样的效率显然很低下。}
+\item{创建索引。}
+\item{分表：如果存在某一列很长，可采用分表的策略。}
+\item{不使用嵌套查询：在一些情况下，系统会将内层嵌套查询的结果存放在临时文件中，这会导致处理时间变长。}
+\end{enumerate}
 
 % 第七章 总结    25
 \chapter{总结}

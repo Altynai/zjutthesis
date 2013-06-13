@@ -271,13 +271,13 @@
 \renewcommand{\listfigurename}{\centerline{\zjut@label@listfigurename}}
 \renewcommand{\numberline}[1]{\zjut@label@figurename~#1\hspace*{1em}}
 \renewcommand{\figurename}{\zjut@label@figurename}
-\titlecontents{figure}[0.1ex]{}{\zjut@label@figurename \thecontentslabel\hspace{1em}}{}{\titlerule*[5pt]{.}\contentspage}
+\titlecontents{figure}[0.1ex]{}{\zjut@label@figurename \thecontentslabel\hspace{0.5ex}}{}{\titlerule*[5pt]{.}\contentspage}
 
 %%% 表目录
 \renewcommand{\listtablename}{\centerline{\zjut@label@listtablename}}
 \renewcommand{\numberline}[1]{\zjut@label@tablename~#1\hspace*{1em}}
 \renewcommand{\tablename}{\zjut@label@tablename}
-\titlecontents{table}[0.1ex]{}{\zjut@label@tablename \thecontentslabel\hspace{1em}}{}{\titlerule*[5pt]{.}\contentspage}
+\titlecontents{table}[0.1ex]{}{\zjut@label@tablename \thecontentslabel\hspace{0.5ex}}{}{\titlerule*[5pt]{.}\contentspage}
 
 % \setlength{\belowcaptionskip}{2mm}
 \renewcommand{\footnotesize}{\xiaowu}

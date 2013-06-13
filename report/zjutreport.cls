@@ -278,6 +278,13 @@
 
 %%%%%%%%%% References %%%%%%%%%%%%%%%%%
 \renewcommand{\bibname}{\zjut@label@bibname}
+
+\ifzjut@proposal
+  \renewcommand{\bibname}{\zjut@label@bibname@alt}
+\else
+  \renewcommand{\bibname}{\zjut@label@bibname}
+\fi
+
 \bibliographystyle{GBT7714-2005NLang-ZJUT}
 % 重定义参考文献样式，来自thu
 \makeatletter

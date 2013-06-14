@@ -694,18 +694,50 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 \caption{系统功能结构图}\label{fig:Command}
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
+
 系统根据用户输入的命令语句来选择具体的模块来执行：当用户输入一系列的命令之后，先进行命令分割提取。
-对于每一条命令，“选择器”通过判断命令的第一个属性来确定这条命令是SQL指令还是Redis原命令，然后获得相应的
+对于每一条命令，“选择器”通过判断命令的第一个参数来确定这条命令是SQL指令还是Redis原命令，然后获得相应的
 执行函数，讲执行后的结果回显到GUI界面中。
 
 这里忽略了两者共有的命令“Select”，默认是当做SQL命令来处理，也就是放弃了Redis里面选择数据库的这个功能。
 
-\section{主界面}
-本内存数据库系统界面采用PyQT4开发，包含了简单的执行命令，获得执行结果等功能，界面截图如下：
+\section{系统界面}
+本内存数据库系统界面采用PyQT4开发，提供了基础的可视化交互界面，系统界面截图如下：
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{GUI}
 \caption{系统界面截图}\label{fig:GUI}
+\vspace{\baselineskip} %表示图与正文空一行
+\end{figure}
+系统界面主要由命令区，结果区，日志区三部分组成：
+
+\subsection{命令区}
+命令区（如~\ref{fig:CommandPart}~所示）的作用是打开、保存、编辑命令文件，一个命令区和一个结果区绑定。本系统对多条命令的分割方式是根据行末尾的分号来进行的，这样做的优点是实现简单，但存在的明显缺点则是无法处理同行多条命令的情况。
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{CommandPart}
+\caption{命令区}\label{fig:CommandPart}
+\vspace{\baselineskip} %表示图与正文空一行
+\end{figure}
+
+\subsection{结果区}
+结果区（如~\ref{fig:ResultPart}~所示）的作用是显示命令的执行结果，这里一般主要显示查询语句的结果集。
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{ResultPart}
+\caption{结果区}\label{fig:ResultPart}
+\vspace{\baselineskip} %表示图与正文空一行
+\end{figure}
+
+\subsection{日志区}
+日志区（如~\ref{fig:LoggingPart}~所示）不绑定任何命令区和结果区，是全局独立的部分。每次执行一条命令的时候，都要将执行结果、执行时间、执行回执消息、执行时间等信息添加到日志区中。
+
+在执行Redis命令的时候，返回的结果即显示在日志区内，而SQL命令则显示在和命令区绑定的结果区中。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{LoggingPart}
+\caption{日志区}\label{fig:LoggingPart}
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
 
@@ -718,10 +750,20 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 \caption{选择处理模块的流程设计}\label{fig:Selector}
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}
-
+ 
 %%% 第六章 性能对比 %%%
 \chapter{性能对比}
-对于一个内存数据库系统而言，性能是非常重要的一个因素。为了测试本内存数据库系统的实际性能，将MySQL（5.5）作为参照数据库，通过一定量的读写操作，来对比两者在性能上的差异，具体结果如表~\ref{tab:redis-mysql}~所示：
+对于一个内存数据库系统而言，性能是非常重要的一个因素。
+为了测试本内存数据库系统的实际性能，将MySQL（5.5）作为参照数据库，
+通过一定量的读写操作，来对比两者在性能上的差异。
+
+\section{测试环境}
+测试的数据集采用imdb.com上的电影资料，一共150万条记录，数据集总大小为500多MB。
+测试机器的环境为：Ubuntu 12.04，2.5Ghz i5-2520M，4G内存。
+
+\section{测试结果}
+测试的时候，通过脚本分别连接到MySQL服务器和Redis服务器，单线程状态下随机产生读写的语句，记录下
+相应所运行的时间，具体结果如表~\ref{tab:redis-mysql}~所示：
 
 \begin{table}[H]
 \centering
@@ -745,8 +787,10 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 \vspace{\baselineskip}
 \end{table}
 
-从表~\ref{tab:redis-mysql}~可以看出，本应用系统相对于MySQL有较高的读写性能。
+\section{测试分析}
+从表~\ref{tab:redis-mysql}~可以看出，在写操作方面，本系统大约比MySQL快2倍多，主要原因在于本系统直接将数据写到内存中，而MySQL虽然有缓冲的机制，但在一定的条件之后，会讲数据写回硬盘，这个磁盘I/O操作会消耗一定时间。在读操作方面，两者差不了多少。如果建了索引，则有一定量的提升。
 
+\section{优化措施}
 此外，为了进一步优化在SQLite方面的性能，可以采取以下的几个方式：
 \begin{enumerate}[label=\arabic*.]
 \item{使用事务：如果不使用事务，默认会对单个语句进行事务处理，会造成重新打开、写入和关闭日志文件，这样的效率显然很低下。}

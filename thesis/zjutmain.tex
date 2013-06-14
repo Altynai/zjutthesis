@@ -3,6 +3,32 @@
 \documentclass{zjutthesis}
 
 \graphicspath{{figures/}}  % 定义所有的eps文件在 figures 子目录下
+
+
+%%下面代码消除空行
+\makeatletter
+\def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne
+                       \if@mainmatter
+                         \refstepcounter{chapter}%
+                         \typeout{\@chapapp\space\thechapter.}%
+                         \addcontentsline{toc}{chapter}%
+                                   {\protect\numberline{\thechapter}#1}%
+                       \else
+                         \addcontentsline{toc}{chapter}{#1}%
+                       \fi
+                    \else
+                      \addcontentsline{toc}{chapter}{#1}%
+                    \fi
+                    \chaptermark{#1}%
+                    \if@twocolumn
+                      \@topnewpage[\@makechapterhead{#2}]%
+                    \else
+                      \@makechapterhead{#2}%
+                      \@afterheading
+                    \fi}
+\makeatother
+
+
 \begin{document}           % 开始全文
 
 %论文题目：{中文}
@@ -31,9 +57,11 @@
 % \defaultfont TODO format 中定义的fix
 % \clearpage{\pagestyle{empty}\cleardoublepage}
 % \titleformat{\chapter}{\centering\hei\sanhao\bfseries}{\chaptername}{2em}{} %设置目录两字的格式
+% \singlespacing
 
 \tableofcontents           % 中文目录
 \pagenumbering{Roman}
+
 \listoffigures             % 图目录
 \pagenumbering{Roman}
 \listoftables              % 表目录
@@ -41,6 +69,7 @@
 
 % \defaultfont\sloppy\raggedbottom
 % \titleformat{\chapter}{\centering\hei\xiaoer\bfseries}{\chaptername}{2em}{} %恢复chapter标题格式要求
+% \onehalfspacing
 
 %%%%%%%%%% 正文 %%%%%%%%%%
 \mainmatter
@@ -608,7 +637,7 @@ Set（通过REDIS\_ENCODING\_INTSET编码）\\
 AOF比RDB有更好的持久化性，原因在于使用AOF持久化时，Server会将收到的写命令追加到文件中（默认是appendonly.aof）。当redis重启时会通过重新执行文件中保存的写命令来在内存中重建整个数据库的内容。但是，由于操作系统会在内核中缓存修改，所以那些写命令可能不是立即写到硬盘上。这样AOF方式的持久化也还是有可能会丢失部分对数据的修改。整个AOF流程如图~\ref{fig:AOF}~所示：
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{AOF}
+\includegraphics[width=0.7\textwidth]{AOF}
 \caption{AOF持久化流程}\label{fig:AOF}
 \vspace{\baselineskip} %表示图与正文空一行
 \end{figure}

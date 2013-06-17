@@ -1,8 +1,12 @@
 % !Mode:: "TeX:UTF-8"
 
 \documentclass[proposal]{zjutreport}
-\usepackage{url}
 \graphicspath{{figures/}}  % 定义所有的eps文件在 figures 子目录下
+
+\usepackage{caption}
+\captionsetup{labelsep=space}%设置一般的caption，比如table和figure的。
+\captionsetup[longtable]{labelsep=space}%设置指定的宏包的caption。
+
 \begin{document}           % 开始全文
 
 %论文题目：{中文}
@@ -35,7 +39,7 @@
 \mainmatter
 \chapter{选题的背景与意义}
 \section{研究开发的目的}
-1969年，埃德加•弗兰克•科德(Edgar Frank Codd)发表了一篇划时代的论文，首次提出关系数据模型的概念。但可惜的是，刊登论文的“IBM Research Report”只是IBM公司的内部刊物，因此论文反响平平。1970年，他再次在刊物《Communication of the ACM》上发表了题为“A Relational Model of Data for Large Shared Data banks”(大型共享数据库的关系模型)的论文，终于引起了大家的关注。
+1969年，Edgar Frank Codd发表了一篇划时代的论文，首次提出关系数据模型的概念。但可惜的是，刊登论文的“IBM Research Report”只是IBM公司的内部刊物，因此论文反响平平。1970年，他再次在刊物《Communication of the ACM》上发表了题为“A Relational Model of Data for Large Shared Data banks”(大型共享数据库的关系模型)的论文，终于引起了大家的关注。
 
 科德所提出的关系数据模型的概念成为了现今关系型数据库的基础。当时的关系型数据库由于硬件性能低劣、处理速度过慢而迟迟没有得到实际应用。但之后随着硬件性能的提升，加之使用简单、性能优越等优点，关系型数据库得到了广泛的应用。
 
@@ -100,18 +104,15 @@ Redis是一个高性能的key-value存储系统。和Memcached类似，它支持
 \newpage
 
 \chapter{研究开发的方法、技术路线和步骤}
-\begin{enumerate}[label=（\arabic*）]
-\item{Redis架构
+\section{Redis架构}
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.7\textwidth]{redis-server}
 \caption{Redis架构}\label{fig:redis-server}
 \vspace{\baselineskip}
 \end{figure}
-}%end Redis架构
 
-\item{Redis运行流程[22]
-
+\section{Redis运行流程[22]}
 \begin{enumerate}[label=\arabic*.]
 \item{服务器初始化：从启动Redis服务器，到服务器可以接受外来客户端的网络连接这段时间，Redis需要执行一系列初始化操作。整个初始化过程可以分为六个步骤：
 \begin{enumerate}[label=\Roman{*}.]
@@ -145,16 +146,18 @@ Redis是一个高性能的key-value存储系统。和Memcached类似，它支持
 \end{enumerate}
 }
 \end{enumerate}
-}
-\item{编程语言：Python\\
+
+\section{编程语言：Python}
 Python现在是最流行的动态编程语言之一，紧接着是Perl,Tcl,PHP和最近的Ruby。虽然它经常被看做是“脚本语言”，但实际上它是和List或者Smalltalk类似写法的通用编程语言。今天，python被用在很多地方，从使用完就扔的脚本到提供24x7不间断服务的大型web服务。它还用在GUI和数据库编程，客户端和服务端web编程，程序测试。
 作为一种即译式的，互动的，面向对象的语言，它包含了异常处理，动态资料形态，高层次的动态结构，和类别的使用。Python语法简单，但是功能出奇的强大。其表达式语法优美易读。并包含了其他优秀脚本语言的一些特点：解释的，面向对象，内置的高级数据结构，支持包以及模块，多平台，可扩展。
-}
-\end{enumerate}
 
 \newpage
 
 \chapter{研究工作总体安排与时间进度}
+本次工作安排的时间段为2012年11月30日至2013年5月30日，
+主要的工作安排为查找资料、资料阅读、内存数据库系统各个模块的设计、
+系统整体编码、系统测试（特别是性能测试）等，具体的时间进度如表~\ref{tab:table1}~所示：
+
 \begin{table}[htbp]
 \caption{工作总体安排与时间进度}\label{tab:table1}
 \vspace{0.5em}
@@ -163,24 +166,24 @@ Python现在是最流行的动态编程语言之一，紧接着是Perl,Tcl,PHP�
 \begin{tabular}{|c|c|c|}
 \hline
 任务序号 & 起止时间 & 阶段任务要点\\ \hline
-1 & 2013.1.11~-~2013.2.20 & 了解课题相关内容，查找中、英文资料\\ \hline
-2 & 2013.2.21~-~2013.3.8 & 查阅文献资料，完成文献综述、开题报告和外文翻译\\ \hline
-3 & 2013.3.9~-~2013.3.25 & 阅读Redis源代码，分析其架构\\ \hline
-4 & 2013.3.26~-~2013.4.1 & 系统详细设计\\ \hline
-5 & 2013.4.2~-~2013.4.24 & 编码\\ \hline
-6 & 2013.4.25~-~2013.4.30 & 系统测试\\ \hline
-7 & 2013.5.1~-~2013.5.15 & 整理资料，完成论文\\ \hline
+1 & 2012.11.30~-~2013.1.10 & 了解课题相关内容，查找中、英文资料\\ \hline
+2 & 2013.1.11~-~2013.2.20 & 查阅文献资料，完成文献综述、开题报告和外文翻译\\ \hline
+3 & 2013.2.21~-~2013.3.8 & 阅读Redis源代码，分析其架构\\ \hline
+4 & 2013.3.9~-~2013.3.21 & Redis整合SQLite设计\\ \hline
+5 & 2013.3.22~-~2013.4.1 & GUI界面设计\\ \hline
+6 & 2013.4.2~-~2013.5.2 & 编码\\ \hline
+7 & 2013.5.3~-~2013.5.10 & 系统测试、性能测试\\ \hline
+8 & 2013.5.11~-~2013.5.30 & 整理资料，完成论文\\ \hline
 \end{tabular}}
 \end{center}
 \vspace{\baselineskip}
 \end{table}
 
+\backmatter
+\endgroup % 组结束
 
 \clearpage % 显式换页，使书签定位准确
 \bibliography{references/reference}
-
-\backmatter
-\endgroup % 组结束
 %%%%%%%%%% 参考文献 %%%%%%%%%%
 \nocite{*}                                   % 若将此命令屏蔽掉，则未引用的文献不会出现在文后的参考文献中。
 

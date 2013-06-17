@@ -3,6 +3,10 @@
 \documentclass[literaturereview]{zjutreport}
 \graphicspath{{figures/}}  % 定义所有的eps文件在 figures 子目录下
 
+\usepackage{caption}
+\captionsetup{labelsep=space}%设置一般的caption，比如table和figure的。
+\captionsetup[longtable]{labelsep=space}%设置指定的宏包的caption。
+
 \begin{document}           % 开始全文
 
 %论文题目：{中文}
@@ -38,7 +42,7 @@
 \mainmatter
 % \makeatletter
 \chapter{引言}
-1969年，埃德加•弗兰克•科德(Edgar Frank Codd)发表了一篇划时代的论文，首次提出了关系数据模型的概念。但可惜的是，刊登论文的“IBM Research Report”只是IBM公司的内部刊物，因此论文反响平平。1970年，他再次在刊物《Communication of the ACM》上发表了题为“A Relational Model of Data for Large Shared Data banks”(大型共享数据库的关系模型)的论文，终于引起了大家的关注。
+1969年，Edgar Frank Codd发表了一篇划时代的论文，首次提出了关系数据模型的概念。但可惜的是，刊登论文的“IBM Research Report”只是IBM公司的内部刊物，因此论文反响平平。1970年，他再次在刊物《Communication of the ACM》上发表了题为“A Relational Model of Data for Large Shared Data banks”(大型共享数据库的关系模型)的论文，终于引起了大家的关注。
 
 科德所提出的关系数据模型的概念成为了现今关系型数据库的基础。当时的关系型数据库由于硬件性能低劣、处理速度过慢而迟迟没有得到实际应用。但之后随着硬件性能的提升，加之使用简单、性能优越等优点，关系型数据库得到了广泛的应用。
 
@@ -91,7 +95,7 @@ eXtremeDB根据用户需求定义的API使得eXtremeDB与应用程序无缝集�
 \section{SAP HANA}
 SAP HANA是一款面向数据源的、灵活、多用途的内存应用设备，整合了基于硬件优化的SAP软件模块，通过SAP主要硬件合作伙伴提供给客户。SAP HANA提供灵活、节约、高效、实时的方法管理海量数据。利用HANA，企业可以不必运行多个数据仓库、运营和分析系统，从而削减相关的硬件和维护成本。SAPHANA将在内存技术基础上，为新的创新应用程序奠定技术基础，支持更高效的业务应用程序，如：计划、预测、运营绩效和模拟解决方案。
 
-\chapter{系统实现技术方法研究}
+\chapter{内存数据库关键技术研究}
 \section{数据的组织结构}
 由于内存数据库对性能要求十分高，所以大量使用了内存的共享机制。此外，指针也广泛的应用于内存数据库中，由于其长度固定的特性，指针可以很好的处理变长字段的问题。通常而言，内存数据库一般采用分级结构来储存数据，分级一般包括“段”和“分区”，两者明显的区别在于段是变长的，分区是固长的，段由若干个分区组成。
 
@@ -109,7 +113,7 @@ Starburst的内存数据组织结构图。
 
 \section{数据索引}
 \subsection{T树}
-文献[16]主要介绍了T树以及其在内存数据库中的使用情况，并与B树做了一定的比较：
+文献\cite{wangshan2007}主要介绍了T树以及其在内存数据库中的使用情况，并与B树做了一定的比较：
 磁盘数据库采用的索引结构主要是B/B$+$树，其设计目标是减少访问磁盘数据的IO次
 数。而在MMDB中，通常采用了一种新的索引结构T树，其设计目标是减少内存开
 销和CPU指令数。T树是由AVL树和B树发展而来，是一颗特殊平衡的二叉树（AVL），
@@ -133,7 +137,7 @@ T树保持了AVL树二分查找高效率的同时也像B树一样，每个节点
 字段的指针即可，这样一来索引中变长字段的存储不再是问题，同时也节省了大量的空间。
 
 \subsection{Hash}
-文献[19]大致介绍了Hash在内存数据库中的使用情况，Hash的作用就是为了快速地定位数据库的记录，MMDB中广泛使用的哈希索引有以下几种：
+文献\cite{hash2007}大致介绍了Hash在内存数据库中的使用情况，Hash的作用就是为了快速地定位数据库的记录，MMDB中广泛使用的哈希索引有以下几种：
 链接桶哈希（Chained Bucket hashing）、可扩展哈希（extendible hashing）、
 线性哈希（linear hashing）、修正的线性哈希（modified linear hashing）
 等。其中链接桶的哈希使用静态结构处理冲突，速度很快，但不适合动态环境。
@@ -141,7 +145,7 @@ T树保持了AVL树二分查找高效率的同时也像B树一样，每个节点
 范围的检索需求。
 
 \section{并发控制}
-文献[16]中引用IBM的Starburst系统作为例子，阐述了如何使用封锁的机制来保证事务的ACID特性：
+文献\cite{wangshan2007}中引用IBM的Starburst系统作为例子，阐述了如何使用封锁的机制来保证事务的ACID特性：
 把锁分成两种级别，记录级锁、表级锁。两中锁在开销方面明显是表级锁要小于记录级锁。所以，一般情况下推荐使用表级锁，但是当发生多个事务在访问表并被其他事务阻塞时，应该用记录级别锁代替表级锁。
 
 由于事务所需的数据完全在内存中，事务能高效的执行，但封锁产生的代价会严重影响到总体的性能，因此可采用如下的方法来减少这个代价：

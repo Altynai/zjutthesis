@@ -3,10 +3,16 @@
 \documentclass[translation]{zjutreport}
 
 \graphicspath{{figures/}}  % 定义所有的eps 文件在 figures 子目录下
+
+\usepackage{caption}
+\captionsetup{labelsep=space}%设置一般的caption，比如table和figure的。
+\captionsetup[longtable]{labelsep=space}%设置指定的宏包的caption。
+
+
 \begin{document}           % 开始全文
 
 %论文题目：{中文}
-\zjuttitle{RAMClouds：可扩展的高性能内存存储}
+\zjuttitle{基于内存数据库的大数据应用系统的设计与实现}
 %作者：{中文姓名}{学号}
 \zjutauthor{陈佳鹏}{200926630503}
 %指导教师：{导师中文名}

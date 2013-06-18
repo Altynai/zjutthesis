@@ -271,13 +271,20 @@
 \renewcommand{\listfigurename}{\centerline{\zjut@label@listfigurename}}
 \renewcommand{\numberline}[1]{\zjut@label@figurename~#1\hspace*{1em}}
 \renewcommand{\figurename}{\zjut@label@figurename}
+\renewcommand{\thefigure}{\thechapter-\arabic{figure}}
 \titlecontents{figure}[0.1ex]{}{\zjut@label@figurename \thecontentslabel\hspace{0.5ex}}{}{\titlerule*[5pt]{.}\contentspage}
 
 %%% 表目录
 \renewcommand{\listtablename}{\centerline{\zjut@label@listtablename}}
 \renewcommand{\numberline}[1]{\zjut@label@tablename~#1\hspace*{1em}}
 \renewcommand{\tablename}{\zjut@label@tablename}
+\renewcommand{\thetable}{\thechapter-\arabic{table}}
 \titlecontents{table}[0.1ex]{}{\zjut@label@tablename \thecontentslabel\hspace{0.5ex}}{}{\titlerule*[5pt]{.}\contentspage}
+%\titlecontents{table}[0.1ex]
+%        {}
+%        {\wuhao\bfseries{\zjut@label@tablename \thecontentslabel\hspace{0.5ex}}}
+%        {\wuhao\bfseries}
+%        {\wuhao\bfseries\titlerule*[5pt]{.}\contentspage}
 
 % \setlength{\belowcaptionskip}{2mm}
 \renewcommand{\footnotesize}{\xiaowu}

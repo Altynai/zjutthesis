@@ -8,7 +8,7 @@
 \captionsetup{labelsep=space}%设置一般的caption，比如table和figure的。
 \captionsetup[longtable]{labelsep=space}%设置指定的宏包的caption。
 
-%%下面代码消除空行
+%下面代码消除空行
 \makeatletter
 \def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne
                        \if@mainmatter
@@ -45,7 +45,7 @@
 %学院信息：{学院中文}
 \zjutcollege{计算机科学与技术学院}
 %日期：{提交日期}
-\zjutdate{2013年06月}
+\zjutdate{2013年5月}
 
 \input{preface/cover}      % 封面
 
@@ -714,7 +714,7 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 系统界面主要由命令区，结果区，日志区三部分组成：
 
 \subsection{命令区}
-命令区（如~\ref{fig:CommandPart}~所示）的作用是打开、保存、编辑命令文件，一个命令区和一个结果区绑定。本系统对多条命令的分割方式是根据行末尾的分号来进行的，这样做的优点是实现简单，但存在的明显缺点则是无法处理同行多条命令的情况。
+命令区（如图~\ref{fig:CommandPart}~所示）的作用是打开、保存、编辑命令文件，一个命令区和一个结果区绑定。本系统对多条命令的分割方式是根据行末尾的分号来进行的，这样做的优点是实现简单，但存在的明显缺点则是无法处理同行多条命令的情况。
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{CommandPart}
@@ -723,7 +723,7 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 \end{figure}
 
 \subsection{结果区}
-结果区（如~\ref{fig:ResultPart}~所示）的作用是显示命令的执行结果，这里一般主要显示查询语句的结果集。
+结果区（如图~\ref{fig:ResultPart}~所示）的作用是显示命令的执行结果，这里一般主要显示查询语句的结果集。
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{ResultPart}
@@ -732,7 +732,7 @@ SAVE：根据条件，调用fsync或fdatasync函数，将AOF文件保存到硬�
 \end{figure}
 
 \subsection{日志区}
-日志区（如~\ref{fig:LoggingPart}~所示）不绑定任何命令区和结果区，是全局独立的部分。每次执行一条命令的时候，都要将执行结果、执行时间、执行回执消息、执行时间等信息添加到日志区中。
+日志区（如图~\ref{fig:LoggingPart}~所示）不绑定任何命令区和结果区，是全局独立的部分。每次执行一条命令的时候，都要将执行结果、执行时间、执行回执消息、执行时间等信息添加到日志区中。
 
 在执行Redis命令的时候，返回的结果即显示在日志区内，而SQL命令则显示在和命令区绑定的结果区中。
 
